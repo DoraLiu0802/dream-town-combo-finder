@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>專賣街 Combo Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+1p:wght@400;500;700&display=swap">
+<style>
+/* Layout: a little town. Sticky search on top; the chosen shop as a big tile; each combo drawn as a 3-lot block on a road; the full shop list as a tile grid; a cart bar fixed at the bottom that opens a space planner. */
+:root{
+  --bg:#e7efdc; --lot:#f7f9f2; --ink:#21301b; --muted:#5d6c55; --line:#c3d1b4;
+  --grass:#3d8a37; --grass-ink:#ffffff; --road:#7b7f86; --road-line:#f4f1e4;
+  --coin:#d89a12; --sel:#fff1c4;
+  --display:"DotGothic16","M PLUS 1p",ui-monospace,monospace;
+  --body:"M PLUS 1p",system-ui,-apple-system,"PingFang HK","Noto Sans TC",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141a12; --lot:#1e271b; --ink:#e5eddb; --muted:#97a68c; --line:#33412e;
+  --grass:#6cba5e; --grass-ink:#0f170d; --road:#3e434a; --road-line:#c9c4ae;
+  --coin:#f0c04a; --sel:#3b3417; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a12; --lot:#1e271b; --ink:#e5eddb; --muted:#97a68c; --line:#33412e;
+  --grass:#6cba5e; --grass-ink:#0f170d; --road:#3e434a; --road-line:#c9c4ae;
+  --coin:#f0c04a; --sel:#3b3417; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 96px;
+  background-image:radial-gradient(color-mix(in srgb,var(--grass) 14%,transparent) 1px,transparent 1.5px);background-size:12px 12px}
+.wrap{max-width:760px;margin:0 auto}
+header{padding-block:18px 6px}
+h1{font-family:var(--display);font-weight:400;font-size:1.65rem;margin:0;letter-spacing:.02em;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);font-size:.85rem;max-width:60ch}
+
+.ico{width:40px;height:40px;image-rendering:pixelated;image-rendering:crisp-edges;display:block;flex:none}
+.ico.sm{width:30px;height:30px}
+.ico.xs{width:20px;height:20px;display:inline-block;vertical-align:middle}
+.ico.lg{width:80px;height:80px}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:3px solid var(--line)}
+#q{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:3px;background:var(--lot);color:var(--ink)}
+#q:focus{outline:none;border-color:var(--grass)}
+
+.hero{display:flex;gap:14px;align-items:center;margin-top:16px;background:var(--lot);border:3px solid var(--ink);border-radius:3px;padding:12px;box-shadow:4px 4px 0 var(--line)}
+.hero .txt{min-width:0;flex:1}
+.eyebrow{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.hero .ttl{font-family:var(--display);font-size:1.45rem;line-height:1.2}
+.hero .meta{font-size:.82rem;color:var(--muted)}
+.hero .pair{display:flex;gap:6px;align-items:center}
+.hero .amp{font-family:var(--display);color:var(--muted)}
+.ctl{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.btn{font:inherit;font-size:.8rem;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:3px;padding:4px 9px;cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--grass);color:var(--grass-ink);border-color:var(--grass)}
+.sizes{display:grid;gap:4px;margin-top:6px}
+.szrow{display:flex;gap:8px;align-items:center;font-size:.8rem;flex-wrap:wrap}
+.szrow span:first-child{color:var(--muted)}
+.szrow select{font:inherit;font-size:.82rem;padding:2px 4px;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--ink)}
+
+h2{font-family:var(--display);font-weight:400;font-size:1.1rem;margin:22px 0 10px;display:flex;gap:8px;align-items:baseline}
+h2 small{font-family:var(--body);font-size:.8rem;color:var(--muted)}
+
+.combos{display:grid;gap:14px}
+.block{background:var(--lot);border:2px solid var(--line);border-radius:3px;overflow:hidden}
+.block.incart{border-color:var(--coin)}
+.block .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding:8px 12px 6px}
+.block .name{font-family:var(--display);font-size:1.08rem}
+.bonus{display:flex;gap:12px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bonus b{font-weight:700}
+.bonus .lp b{color:var(--grass)}
+.bonus .pr b{color:var(--coin)}
+.lots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:0 10px}
+.lotbtn{font:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px 7px;background:var(--bg);border:2px solid var(--line);border-bottom:0;border-radius:3px 3px 0 0;color:var(--ink);cursor:pointer;min-width:0}
+.lotbtn span{font-size:.78rem;line-height:1.2;text-align:center;overflow-wrap:anywhere}
+.lotbtn.me{background:var(--sel);border-color:var(--coin);cursor:default;font-weight:700}
+.lotbtn:not(.me):hover{border-color:var(--grass)}
+.road{height:12px;background:var(--road);background-image:linear-gradient(90deg,var(--road-line) 0 14px,transparent 14px 28px);background-size:28px 2px;background-repeat:repeat-x;background-position:0 5px}
+.space{display:flex;gap:12px;align-items:center;padding:8px 12px 10px;flex-wrap:wrap}
+.fpsvg{flex:none;max-width:100%;height:auto}
+.fpgrid line{stroke:var(--line);stroke-width:1}
+.fp{stroke:var(--ink);stroke-width:1}
+.fp0{fill:color-mix(in srgb,var(--grass) 55%,var(--lot))}
+.fp1{fill:color-mix(in srgb,var(--coin) 60%,var(--lot))}
+.fp2{fill:color-mix(in srgb,var(--road) 45%,var(--lot))}
+.fpe{stroke-dasharray:2 2}
+.fproad{fill:var(--road)}
+.sptxt{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;min-width:0;flex:1}
+.sptxt b{color:var(--ink);font-family:var(--display);font-weight:400;font-size:.98rem}
+.sptxt .dims{font-size:.72rem}
+.cartbtn{font:inherit;font-size:.82rem;font-weight:700;border:2px solid var(--coin);background:var(--lot);color:var(--ink);border-radius:3px;padding:6px 10px;cursor:pointer;margin-left:auto}
+.cartbtn[aria-pressed="true"]{background:var(--coin);color:#21301b}
+.tag{display:inline-block;font-size:.66rem;letter-spacing:.04em;padding:1px 5px;border-radius:2px;border:1px solid var(--line);color:var(--muted);vertical-align:middle}
+.tag.est{border-style:dashed;color:var(--coin);border-color:var(--coin)}
+.tag.wiki{color:var(--grass);border-color:var(--grass)}
+.tag.mine{background:var(--sel);color:var(--ink);border-color:var(--coin)}
+
+.empty{color:var(--muted);background:var(--lot);border:2px dashed var(--line);border-radius:3px;padding:14px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+.tile{font:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 4px 6px;background:var(--lot);border:2px solid var(--line);border-radius:3px;color:var(--ink);cursor:pointer;position:relative;min-width:0}
+.tile .nm{font-size:.74rem;line-height:1.15;text-align:center;overflow-wrap:anywhere}
+.tile .n{position:absolute;top:3px;right:4px;font-size:.66rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.tile .z{position:absolute;top:3px;left:4px;font-size:.62rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.tile .z.e::before{content:"≈"}
+.tile:hover{border-color:var(--grass)}
+.tile.on{background:var(--grass);border-color:var(--grass);color:var(--grass-ink)}
+.tile.on .n,.tile.on .z{color:inherit}
+button:focus-visible,select:focus-visible{outline:3px solid var(--coin);outline-offset:2px}
+.note{color:var(--muted);font-size:.78rem;margin-top:24px;max-width:65ch}
+
+/* cart */
+.cartbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:8px 16px calc(8px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg)}
+.cartbar .in{max-width:760px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.cartbar .ct{font-family:var(--display);font-size:1rem;flex:1;min-width:0}
+.cartbar .ct small{font-family:var(--body);opacity:.8;font-size:.78rem;display:block}
+.cartbar button{font:inherit;font-weight:700;font-size:.9rem;background:var(--coin);color:#21301b;border:0;border-radius:3px;padding:8px 14px;cursor:pointer}
+.cartbar button:disabled{opacity:.5;cursor:default}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--lot);border-top:3px solid var(--ink);max-height:82%;overflow:auto;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 0 color-mix(in srgb,var(--ink) 15%,transparent)}
+.scrim{position:fixed;inset:0;z-index:25;background:color-mix(in srgb,#000 35%,transparent)}
+.sheet .in{max-width:760px;margin:0 auto}
+.sheet h3{font-family:var(--display);font-weight:400;font-size:1.25rem;margin:0}
+.shead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.clist{display:grid;gap:6px;margin:10px 0}
+.citem{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:6px 8px;flex-wrap:wrap}
+.citem .cn{font-family:var(--display);min-width:0}
+.citem .icons{display:flex;gap:2px}
+.citem .rm{margin-left:auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:12px 0}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:8px 10px}
+.stat .v{font-family:var(--display);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.stat .l{font-size:.74rem;color:var(--muted)}
+.plan{background:var(--bg);border:2px solid var(--line);border-radius:3px;padding:10px;overflow-x:auto}
+.plan svg{display:block;max-width:none}
+.plan .pl{fill:color-mix(in srgb,var(--grass) 30%,var(--lot));stroke:var(--ink);stroke-width:1.5}
+.plan .pl.sh{fill:var(--sel);stroke:var(--coin);stroke-width:2.5}
+.plan .pl.e{stroke-dasharray:4 3}
+.plan .pg{stroke:var(--line);stroke-width:1}
+.plan .rd{fill:var(--road)}
+.plan .rdl{stroke:var(--road-line);stroke-width:1.5;stroke-dasharray:6 6;fill:none}
+.plan text{font-family:var(--body);font-size:9px;fill:var(--ink)}
+.opts{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 6px}
+.legend{font-size:.76rem;color:var(--muted);margin-top:8px;display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:4px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--grass) 30%,var(--lot))}
+.legend i.sh{background:var(--sel);border-color:var(--coin)}
+.why{font-size:.82rem;color:var(--muted);margin:6px 0 0;max-width:65ch}
+
+.en{display:block;font-family:var(--body);font-size:.7rem;font-weight:400;color:var(--muted);letter-spacing:.02em;line-height:1.2}
+.hero .en{font-size:.78rem;margin-top:2px}
+.citem .cn .en{font-size:.68rem}
+.toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+
+:root[lang="zh-Hant"]{--display:"M PLUS 1p",system-ui,"PingFang HK","Noto Sans TC",sans-serif}
+:root[lang="zh-Hans"]{--display:system-ui,"PingFang SC","Noto Sans SC",sans-serif;--body:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}
+:root[lang="ko"]{--display:system-ui,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;--body:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+.langsw{display:inline-flex;flex-wrap:wrap;max-width:100%;border:2px solid var(--ink);border-radius:3px;overflow:hidden;flex:none}
+.langsw button{font:inherit;font-size:.82rem;border:0;background:var(--lot);color:var(--ink);padding:5px 10px;cursor:pointer}
+.langsw button+button{border-left:2px solid var(--ink)}
+.langsw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.fpdoor{fill:var(--ink)}
+.plan .dr{fill:var(--ink)}
+.plan .pl.deco{fill:color-mix(in srgb,var(--coin) 18%,var(--lot));stroke-dasharray:1 3}
+.legend i.dr{background:var(--ink);height:4px;vertical-align:2px}
+.legend i.deco{background:color-mix(in srgb,var(--coin) 18%,var(--lot));border-style:dotted}
+.rdbtn{font-size:.72rem;padding:2px 7px}
+.credits a{color:inherit;text-decoration:underline}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header>
+  <div class="toprow">
+    <h1 id="h1">專賣街 Combo Finder</h1>
+    <div class="langsw" id="langsw" role="group" aria-label="Language">
+      <button data-lang="en" lang="en">EN</button><button data-lang="ja" lang="ja">日本語</button><button data-lang="zh" lang="zh-Hant">繁中</button><button data-lang="zhs" lang="zh-Hans">简中</button><button data-lang="ko" lang="ko">한국어</button>
+    </div>
+  </div>
+  <p id="sub"></p>
+</header>
+
+<div class="bar">
+  <input id="q" type="search" autocomplete="off">
+</div>
+
+<div id="hero"></div>
+<section id="results"></section>
+
+<section>
+  <h2 id="allshops">All shops <small id="shopcount"></small></h2>
+  <div class="grid" id="grid"></div>
+</section>
+
+<p class="note" id="note"></p>
+<p class="note credits" id="credits"></p>
+</div>
+
+<div class="cartbar"><div class="in">
+  <div class="ct" id="cartct"></div>
+  <button id="opencart">Plan space</button>
+</div></div>
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog"><div class="in" id="sheetin"></div></div>
+
+<script>
+const RAW=`Picnic|Park|Lunches 2 GO|Bakery|150|20
+Sweets|Cakery|Creperie|Donut Shop|90|45
+Chubby|Ramen Bar|Pizzeria|Donut Shop|110|25
+Eating-Out|Steakhouse|Restaurant|Fast 'n' Fried|150|20
+Groceries|Supermarket|Greengrocer|Fishmonger|90|45
+Lazy Day|Blogbuster|Bowling Alley|Game Arcade|110|25
+Jolly|Music Shop|Florist|Cakery|150|20
+Family|Park|Game Shop|Toy Shop|90|45
+Convenient|Supermarket|24-7 Mart|Drugstore|90|45
+Chill-Out|Bookstore|Cafe|Florist|150|20
+Hi-Tec|PC Shop|Cell Shop|Home Elec.|150|20
+Otaku|Anime Shop|Game Shop|Toy Shop|90|45
+Old-Timey|Candy Shop|Shrine|Sauna|110|25
+Seaside|Beach House|Wharf|Fishmonger|90|45
+Local|Cakery|Greengrocer|Florist|150|20
+Student|School|Steakhouse|Diner|90|45
+Lunch|Lunches 2 GO|Bakery|Cafe|110|25
+Silicon|Game Shop|Cell Shop|PC Shop|150|20
+Fishy|Fishing Pond|Fishmonger|Aquarium|110|25
+Lunch-Break|Trash Cans|24-7 Mart|School|110|25
+Telecom|Phone Box|PC Shop|Cell Shop|150|20
+Cheap Lunch|Bench|Gingko|Fast 'n' Fried|90|45
+Family Sunday|Fountain|Creperie|Zoo|110|25
+Pet|Doggie Statue|Beautician|Pet Shop|150|20
+Tourist Spot|Clock Tower|Local Center|Shrine|90|45
+Money Drain|Lotto Ticket Shop|Sushi Joint|Tapas Bar|110|25
+Aqua|Fire Hydrant|Fishing Pond|Heated Pool|90|45
+Teachers|Park|School|Dry Cleaner|110|25
+Bikers|Pizzeria|Motorcycle Shop|Fast 'n' Fried|150|20
+Farm Lunch|Lunches 2 GO|Hydrangeas|Farm|110|25
+Tranquil|Pet Shop|Mountain|Fishing Pond|150|20
+Biker Show|Blogbuster|Motorcycle Shop|PC Shop|150|20
+Meet-Up|Cafe|Diner|Clock Tower|150|20
+Flowery|Florist|Sunflowers|Ranch|90|45
+Picturesque|Fishmonger|Boulder|Spa Hotel|110|25
+Fresh Food|Greengrocer|Restaurant|Fishmonger|150|20
+Clean Tunes|Music Shop|Cell Shop|Sauna|150|20
+Games & Toys|Game Shop|Home Elec.|Toy Shop|90|45
+Movie|Anime Shop|Cinema|Blogbuster|110|25
+Day Off|Bookstore|Bench|Cafe|110|25
+Grandpa|Ramen Bar|Sauna|Utility Pole|110|25
+Education|School|Cram School|Bookstore|165|25
+Housekeeper|Supermarket|Dry Cleaner|Local Center|105|50
+Gamers|Game Shop|PC Shop|Game Arcade|125|30
+Weekend|Sushi Joint|BBQ House|Pizzeria|165|25
+H. Springs|Sauna|Spa|Spa Hotel|125|30
+Health|Hospital|Gym|Sauna|125|30
+Shopping|Supermarket|Boutique|Jewelry Shop|105|50
+Gourmet|Tapas Bar|Sushi Joint|Ramen Bar|125|30
+Fashion #1|Boutique|Cakery|Drugstore|165|25
+Intellect|Bookstore|Museum|School|165|25
+Fitness|Heated Pool|Gym|Drugstore|165|25
+Nature|Ranch|Park|Camp Site|105|50
+Fresh-Made|Donut Shop|Ranch|Creperie|165|25
+Musical|Music Shop|Concert Hall|Blogbuster|105|50
+Passing-By|Vending Machine|Farm|Ancient Pine|105|50
+TV|Utility Pole|Comms Tower|Home Elec.|165|25
+Alpine Bread|Bakery|Mountain|Farm|105|50
+Anti-Theft|Security Inc.|Home Elec.|Bank|125|30
+Vacation|Bowling Alley|Steakhouse|Beautician|105|50
+Farm 2 Shop|Supermarket|Mountain|Farm|125|30
+Agritourism|Farm|Greengrocer|Spa|125|30
+Soak|Heated Pool|Dry Cleaner|Sauna|125|30
+Day-Off Chill|Beautician|Home Elec.|Bookstore|165|25
+House Move|Estate Agent|Info Center|Local Center|105|50
+Spectator|Donut Shop|Fire Hydrant|Stadium|125|30
+Triple F|Furniture Shop|Fire Hydrant|Orchard|165|25
+Fishing|Wharf|Fishing Pond|Sushi Joint|125|30
+Outdoor Fam|Camp Site|Mountain|Parking Lot|165|25
+Nature Special|Fishing Pond|Gold Trophy|Fountain|105|50
+Small Town|Sports Shop|School|Candy Shop|165|25
+Medicine|Clinic|Drugstore|24-7 Mart|105|50
+Revive|Clinic|Spa|Sauna|105|50
+Splashy|Outdoor Pool|Aquarium|Fishmonger|165|25
+Fashion #2|Boutique|Shoe Shop|Beautician|145|35
+Medical|Hospital|Drugstore|24-7 Mart|145|35
+Vehicle|Bike Shop|Motorcycle Shop|Car Dealer|125|55
+Touristy|Spa Hotel|Temple|Gift Shop|185|30
+Rural|Farm|Ranch|Fishing Pond|145|35
+Day Out|Museum|Aquarium|Cinema|125|55
+Bodyguard|Security Inc.|Gym|Camp Site|145|35
+Estate|Contractors|Estate Agent|Furniture Shop|185|30
+Posh|Jewelry Shop|3-Star Hotel|Bank|185|30
+Pleasure|Game Arcade|Bowling Alley|Casino|185|30
+Culture|Jewelry Shop|Museum|Cinema|125|55
+Industry|Motorcycle Shop|Car Dealer|School|125|55
+Animal|Pet Shop|Ranch|Zoo|125|55
+Workaholic|Office Bldg|Hospital|Dry Cleaner|185|30
+Never-Lost|Info Center|Local Center|Comms Tower|185|30
+Kairo|Public Restrooms|Kairo Statue|Theme Park|145|30
+Blessings|Monument|Farm|Shrine|145|30
+Kairo Fun|Toy Shop|PC Shop|Kairo Bldg|125|55
+Security|Jewelry Shop|Security Inc.|3-Star Hotel|185|30
+Engineer|Contractors|Bike Shop|Rocket Hall|185|30
+Media|Game Arcade|Aquarium|Bowling Alley|125|55
+Foodie|Cakery|Ranch|Farm|185|30
+Night Out|Dance Club|Tapas Bar|Drugstore|185|30
+Outdoor|BBQ House|Camp Site|Beach House|125|55
+Office Clerk|Shoe Shop|Office Bldg|Tapas Bar|125|55
+Tech & Nature|Rocket Hall|Cactus|Flowerbed|185|30
+Seaside Tour|Tapas Bar|Beach House|Castle|145|35
+Souvenir|Candy Shop|Monument|Gift Shop|125|55
+Food Special|Restaurant|Bronze Trophy|Observation Deck|185|30
+Spa Special|Sauna|Bronze Trophy|Observation Deck|125|55
+Beef Special|Steakhouse|Bronze Trophy|Observation Deck|145|35
+Temple Special|Temple|Bronze Trophy|24-7 Mart|185|30
+Sweet Special|Creperie|Bronze Trophy|Observation Deck|125|55
+Sport Special|Fast 'n' Fried|Silver Trophy|Gym|125|55
+Car Special|Parking Lot|Silver Trophy|Car Dealer|185|30
+Museum Special|Diner|Silver Trophy|Museum|125|55
+Swimming|Outdoor Pool|Beach House|Heated Pool|185|30
+Outfitters|Sports Shop|Shoe Shop|Boutique|185|30
+Smart|Planetarium|School|Museum|125|55
+Popular|Home Center|Estate Agent|Supermarket|145|35
+Sporty|Stadium|Baseball Park|Gym|210|35
+DIY|Dept. Store|Furniture Shop|Home Elec.|210|35
+Grown-Up|Dance Club|Casino|Tapas Bar|150|60
+Oriental|Pagoda|Shrine|Monument|170|40
+Celeb|Castle|Boutique|Dept. Store|170|40
+Business|High-Rise|Skyscraper|Bank|170|40
+Sinister|Comms Tower|Hospital|School|170|40
+Hollywood|Cinema|Theme Park|Jewelry Shop|210|35
+Kairo Park|Kairo Statue|Game Shop|Kairo Bldg|150|60
+Cyclists|Bike Shop|Gym|Stadium|150|60
+Live Gig|Cell Shop|Comms Tower|Concert Hall|170|40
+Cram Combo|Cram School|Stadium|Gym|170|40
+Spring Deal|Boutique|Cherry Tree|Dept. Store|210|35
+Safe Flight|Shrine|Airport|Security Inc.|150|60
+Schoolday|Drugstore|School|Subway|150|60
+Time-Saver|Dry Cleaner|Furniture Shop|Subway|170|40
+Easy Tour|Gift Shop|Subway|Pagoda|210|35
+Healthcare|Local Center|Hospital|Subway|150|60
+Hot Events|Concert Hall|Parking Lot|Baseball Park|150|60
+Surveillance|Helipad|Security Inc.|PC Shop|150|60
+Sea Special|Sushi Joint|Bronze Trophy|Observation Deck|170|40
+Money Special|Casino|Bronze Trophy|Observation Deck|170|40
+Rich Special|24-7 Mart|Silver Trophy|Casino|210|35
+Shop Special|Bus Stop|Silver Trophy|Dept. Store|170|40
+Historic Special|Museum|Silver Trophy|Castle|170|40
+Bike Special|Motorcycle Shop|Silver Trophy|Kairo Bldg|210|35
+Farm Special|Spa|Gold Trophy|Ranch|170|40
+Fun Special|Beach House|Gold Trophy|Theme Park|210|35
+Movie Special|Dept. Store|Gold Trophy|Cinema|150|60
+Golf|Golf Training Center|Golf Course|Sports Shop|170|40
+Suburb|Home Center|Farm|PC Shop|170|40
+Athletic|Sports Grounds|Gym|Stadium|210|35
+Hole-in-One|Golf Training Center|Gold Trophy|Donut Shop|170|40
+Training|Sports Grounds|Gold Trophy|Baseball Park|210|35
+Furry Critter|Safari Park|Kairopuppy Statue|Pet Shop|210|35
+Eventful|Cinema|Theme Park|Concert Hall|210|45
+Critter|Aquarium|Zoo|Ranch|190|65
+Amusement|Comms Tower|TV Station|Concert Hall|190|65
+High-Rise|High-Rise|Skyscraper|Kairo Bldg|210|45
+Castle|Palace|Castle|Kairo Statue|250|40
+Aviation|Rocket Hall|Helipad|Airport|190|65
+Date|Theme Park|Zoo|Cinema|210|45
+Special|Airport|TV Station|Skyscraper|210|45
+Consortium|Office Tower|Weeping Cherry|High-Rise|190|65
+Big Bucks|Kairo Statue|Office Tower|BBQ House|190|65
+Subway|Subway|Office Tower|High-Rise|250|40
+Castle Special|Palace|Gold Trophy|3-Star Hotel|210|45
+Cherry Special|3-Star Hotel|Gold Trophy|Weeping Cherry|250|40
+Sushi Special|Comms Tower|Gold Trophy|Sushi Joint|190|65
+Ducky|Ducky Statue|Gold Trophy|Pagoda|210|45
+Ackbar|Ackbar Statue|Gold Trophy|Kairo Bldg|250|40
+Kairoman|Kairoman Statue|Gold Trophy|Cinema|190|65
+Kairopuppy|Kairopuppy Statue|Gold Trophy|Hospital|210|45
+Kairodad|Kairodad Statue|Gold Trophy|TV Station|250|40
+Bearington|Bearington Statue|Gold Trophy|Home Elec.|190|65
+Sally Prin|Sally Prin Statue|Gold Trophy|Spa Hotel|210|45
+Chimpan Z|Chimpan Z Statue|Gold Trophy|Gym|250|40
+Pumpkin|Pumpkin Statue|Gold Trophy|Car Dealer|190|65
+Secretary|Secretary Statue|Gold Trophy|Theme Park|210|45
+Sheepy|Sheepy Statue|Gold Trophy|School|250|40
+Octo-Alien|Octo-Alien Statue|Gold Trophy|Stadium|190|60
+Minnie|Minnie Statue|Gold Trophy|Aquarium|210|45
+Wariobot|Wariobot Statue|Gold Trophy|Ranch|250|40
+Bunny|Bunny Statue|Gold Trophy|Baseball Park|190|65
+Angelic Kairobot|Angelic Kairo Statue|Gold Trophy|Zoo|210|45
+Space|Planetarium|Rocket Hall|Octo-Alien Statue|190|65
+Animal Love|Safari Park|Zoo|Aquarium|250|40
+Livestock|Racecourse|Ranch|Zoo|210|45
+Corporate|Golf Course|Kairodad Statue|Tapas Bar|210|45
+Big-Spender|Racecourse|Ackbar Statue|Casino|210|45
+Hill|Fountain Plaza|Spa Hotel|Camp Site|150|60
+Smiley|Fountain Plaza|Theme Park|Sally Prin Statue|190|65`;
+
+const ICON={"24-7 Mart":"🏪","3-Star Hotel":"🏨","Ackbar Statue":"🐸","Airport":"✈️","Ancient Pine":"🌲","Angelic Kairo Statue":"👼","Anime Shop":"📺","Aquarium":"🐠","Bakery":"🥐","Bank":"🏦","Baseball Park":"⚾","BBQ House":"🍖","Beach House":"🏖️","Bearington Statue":"🧸","Beautician":"💇","Bench":"🪑","Bike Shop":"🚲","Blogbuster":"📼","Bookstore":"📚","Boulder":"🪨","Boutique":"👗","Bowling Alley":"🎳","Bronze Trophy":"🥉","Bunny Statue":"🐰","Bus Stop":"🚏","Cactus":"🌵","Cafe":"☕","Cakery":"🍰","Camp Site":"⛺","Candy Shop":"🍬","Car Dealer":"🚗","Casino":"🎰","Castle":"🏯","Cell Shop":"📱","Cherry Tree":"🌸","Chimpan Z Statue":"🐵","Cinema":"🎬","Clinic":"🩺","Clock Tower":"🕰️","Comms Tower":"📡","Concert Hall":"🎻","Contractors":"🏗️","Cram School":"✏️","Creperie":"🥞","Dance Club":"🪩","Dept. Store":"🛍️","Diner":"🍳","Doggie Statue":"🐕","Donut Shop":"🍩","Drugstore":"💊","Dry Cleaner":"👔","Ducky Statue":"🦆","Estate Agent":"🔑","Farm":"🌾","Fast 'n' Fried":"🍟","Fire Hydrant":"🧯","Fishing Pond":"🎣","Fishmonger":"🐟","Florist":"💐","Flowerbed":"🌷","Fountain":"⛲","Fountain Plaza":"💦","Furniture Shop":"🛋️","Game Arcade":"🕹️","Game Shop":"🎮","Gift Shop":"🎁","Gingko":"🍂","Gold Trophy":"🏆","Golf Course":"⛳","Golf Training Center":"🏌️","Greengrocer":"🥬","Gym":"🏋️","Heated Pool":"🏊","Helipad":"🚁","High-Rise":"🏢","Home Center":"🔨","Home Elec.":"🔌","Hospital":"🏥","Hydrangeas":"🪻","Info Center":"🗺️","Jewelry Shop":"💎","Kairo Bldg":"🏬","Kairo Statue":"🤖","Kairodad Statue":"👨","Kairoman Statue":"🦸","Kairopuppy Statue":"🐶","Local Center":"🏘️","Lotto Ticket Shop":"🎟️","Lunches 2 GO":"🍱","Minnie Statue":"🐭","Monument":"🗿","Motorcycle Shop":"🏍️","Mountain":"⛰️","Museum":"🏛️","Music Shop":"🎸","Observation Deck":"🗼","Octo-Alien Statue":"👽","Office Bldg":"💼","Office Tower":"🏙️","Orchard":"🍎","Outdoor Pool":"🛟","Pagoda":"🏮","Palace":"🏰","Park":"🌳","Parking Lot":"🅿️","PC Shop":"💻","Pet Shop":"🐈","Phone Box":"☎️","Pizzeria":"🍕","Planetarium":"🌌","Public Restrooms":"🚻","Pumpkin Statue":"🎃","Racecourse":"🏇","Ramen Bar":"🍜","Ranch":"🐄","Restaurant":"🍽️","Rocket Hall":"🚀","Safari Park":"🦁","Sally Prin Statue":"👸","Sauna":"🧖","School":"🏫","Secretary Statue":"👩‍💼","Security Inc.":"🛡️","Sheepy Statue":"🐑","Shoe Shop":"👟","Shrine":"⛩️","Silver Trophy":"🥈","Skyscraper":"🌆","Spa":"♨️","Spa Hotel":"🛁","Sports Grounds":"🏃","Sports Shop":"🎾","Stadium":"🏟️","Steakhouse":"🥩","Subway":"🚇","Sunflowers":"🌻","Supermarket":"🛒","Sushi Joint":"🍣","Tapas Bar":"🍷","Temple":"🛕","Theme Park":"🎢","Toy Shop":"🪀","Trash Cans":"🗑️","TV Station":"📹","Utility Pole":"⚡","Vending Machine":"🥤","Wariobot Statue":"🦾","Weeping Cherry":"🎋","Wharf":"⚓","Zoo":"🦒"};
+
+/* Footprints in tiles (width x depth). VERIFIED from the Kairosoft Wiki structures table; ESTIMATED where the wiki page could not be read. */
+const VERIFIED={"Subway":[2,2],"Office Bldg":[2,2],"Flowerbed":[1,1],"Cactus":[1,1],"Boulder":[1,1],"Hydrangeas":[1,1],"Gingko":[2,2],"Orchard":[2,2],"Mountain":[6,6],"Cherry Tree":[2,2],"Ancient Pine":[2,2],"Weeping Cherry":[2,2],"Utility Pole":[1,1],"Clock Tower":[1,1],"Fire Hydrant":[1,1],"Trash Cans":[1,1],"Vending Machine":[1,1],"Public Restrooms":[1,1],"Bench":[1,1],"Fountain":[1,1],"Doggie Statue":[1,1],"Phone Box":[1,1],"Lotto Ticket Shop":[1,1],"Park":[2,2],"Info Center":[1,1],"Shrine":[2,2],"Temple":[2,2],"Monument":[2,2],"Kairo Statue":[2,2],"Pagoda":[4,4],"Bronze Trophy":[1,1],"Silver Trophy":[1,1],"Gold Trophy":[1,1],"Ducky Statue":[1,1],"Ackbar Statue":[1,1],"Kairoman Statue":[1,1],"Kairopuppy Statue":[1,1],"Kairodad Statue":[1,1],"Bearington Statue":[1,1],"Sally Prin Statue":[1,1],"Chimpan Z Statue":[1,1],"Pumpkin Statue":[1,1],"Secretary Statue":[1,1],"Sheepy Statue":[1,1],"Octo-Alien Statue":[1,1],"Minnie Statue":[1,1],"Wariobot Statue":[1,1],"Bunny Statue":[1,1],"Angelic Kairo Statue":[1,1],"Sunflowers":[1,1],"24-7 Mart":[2,2],"Anime Shop":[2,2],"Bakery":[2,2],"BBQ House":[2,2],"Beach House":[2,2],"Beautician":[2,2],"Bike Shop":[2,2],"Blogbuster":[2,2],"Bookstore":[2,2],"Boutique":[2,2],"Bowling Alley":[2,2],"Cafe":[2,2],"Cakery":[2,2],"Candy Shop":[2,2],"Casino":[2,2],"Cell Shop":[2,2],"Clinic":[2,2],"Contractors":[2,2],"Cram School":[2,2],"Creperie":[2,2],"Dance Club":[2,2],"Dept. Store":[4,2],"Diner":[4,2],"Donut Shop":[2,2],"Drugstore":[2,2],"Dry Cleaner":[2,2],"Estate Agent":[2,2],"Fast 'n' Fried":[2,2],"Fishing Pond":[4,2],"Fishmonger":[2,2],"Florist":[2,2],"Furniture Shop":[2,2],"Game Arcade":[2,2],"Game Shop":[2,2],"Gift Shop":[2,2],"Greengrocer":[2,2],"Heated Pool":[2,2],"Jewelry Shop":[2,2],"Local Center":[2,2],"Lunches 2 GO":[2,2],"Motorcycle Shop":[4,2],"Museum":[4,2],"Music Shop":[2,2],"Observation Deck":[2,2],"Parking Lot":[2,2],"Pet Shop":[2,2],"Pizzeria":[2,2],"Ramen Bar":[2,2],"Restaurant":[2,2],"Sauna":[2,2],"Security Inc.":[2,2],"Shoe Shop":[2,2],"Spa":[4,2],"Sports Shop":[2,2],"Steakhouse":[2,2],"Supermarket":[2,2],"Sushi Joint":[2,2],"Tapas Bar":[2,2],"Toy Shop":[2,2],"3-Star Hotel":[4,4],"Airport":[10,8],"Aquarium":[6,6],"Bank":[4,4],"Baseball Park":[6,6],"Camp Site":[4,4],"Car Dealer":[4,4],"Castle":[4,4],"Cinema":[4,4],"Comms Tower":[4,4],"Concert Hall":[4,4],"Farm":[4,4],"Fountain Plaza":[6,6],"Golf Course":[6,6],"Gym":[4,4],"Helipad":[4,4],"High-Rise":[4,4],"Home Center":[4,4],"Home Elec.":[4,4],"Hospital":[4,4],"Kairo Bldg":[4,4],"Palace":[4,4],"PC Shop":[4,4],"Planetarium":[4,4],"Outdoor Pool":[4,4],"Racecourse":[6,6],"Ranch":[6,6],"Rocket Hall":[4,4],"Safari Park":[6,6],"School":[6,6],"Skyscraper":[6,6],"Spa Hotel":[4,4],"Sports Grounds":[4,4],"Stadium":[6,6],"Theme Park":[6,6],"TV Station":[4,4],"Zoo":[6,6],"Bus Stop":[2,2],"Wharf":[2,4]};
+const ESTIMATED={"Office Tower":[4,4],"Golf Training Center":[4,4]};
+let MINE={}; try{MINE=JSON.parse(localStorage.getItem("dts-size")||"{}")||{};}catch(e){}
+function size(s){
+  if(MINE[s]) return {w:MINE[s][0],h:MINE[s][1],src:"mine"};
+  if(VERIFIED[s]) return {w:VERIFIED[s][0],h:VERIFIED[s][1],src:"wiki"};
+  const e=ESTIMATED[s]||[2,2]; return {w:e[0],h:e[1],src:"est"};
+}
+const SIZE_OPTS=(()=>{const m=new Map();[[1,1],[2,1],[2,2],[4,2],[2,4],[4,4],[6,6]].concat(Object.values(VERIFIED),Object.values(ESTIMATED)).forEach(s=>m.set(s.join("x"),s));return [...m.values()].sort((a,b)=>a[0]*a[1]-b[0]*b[1]||a[0]-b[0]);})();
+/* Space for a combo: total tiles, plus the strip it needs when the 3 lots sit side by side along one road (long side facing the road). */
+/* Doors are on a building's short side. Decorations (plants, statues, trophies, fountains, monuments) need no road; everything else does. */
+const NO_ROAD=new Set(["Ancient Pine","Boulder","Cactus","Cherry Tree","Flowerbed","Gingko","Hydrangeas","Mountain","Orchard","Sunflowers","Weeping Cherry","Fountain","Monument","Doggie Statue","Kairo Statue","Ackbar Statue","Angelic Kairo Statue","Bearington Statue","Bunny Statue","Chimpan Z Statue","Ducky Statue","Kairodad Statue","Kairoman Statue","Kairopuppy Statue","Minnie Statue","Octo-Alien Statue","Pumpkin Statue","Sally Prin Statue","Secretary Statue","Sheepy Statue","Wariobot Statue","Bronze Trophy","Silver Trophy","Gold Trophy"]);
+let ROAD_OVR={}; try{ROAD_OVR=JSON.parse(localStorage.getItem("dts-road")||"{}")||{};}catch(e){}
+function needsRoad(s){return s in ROAD_OVR?ROAD_OVR[s]:!NO_ROAD.has(s);}
+function space(c){
+  const L=c.parts.map(p=>{const z=size(p);return{p,w:Math.min(z.w,z.h),h:Math.max(z.w,z.h),src:z.src,road:needsRoad(p)}});
+  return{L,tiles:L.reduce((t,l)=>t+l.w*l.h,0),W:L.reduce((t,l)=>t+l.w,0),H:Math.max(...L.map(l=>l.h)),est:L.some(l=>l.src==="est")};
+}
+function footprint(sp){
+  const T=7, w=sp.W*T, h=sp.H*T; let x=0;
+  const rects=sp.L.map((l,i)=>{const r=`<rect x="${x+.5}" y="${h-l.h*T+.5}" width="${l.w*T-1}" height="${l.h*T-1}" class="fp fp${i}${l.src==="est"?" fpe":""}"/>`+(l.road?`<rect x="${x+l.w*T/2-2}" y="${h-2}" width="4" height="2" class="fpdoor"/>`:"");x+=l.w*T;return r}).join("");
+  let grid=""; for(let i=1;i<sp.W;i++) grid+=`<line x1="${i*T}" y1="0" x2="${i*T}" y2="${h}"/>`; for(let j=1;j<sp.H;j++) grid+=`<line x1="0" y1="${j*T}" x2="${w}" y2="${j*T}"/>`;
+  return `<svg class="fpsvg" width="${w}" height="${h+4}" viewBox="0 0 ${w} ${h+4}" aria-hidden="true"><g class="fpgrid">${grid}</g>${rects}<rect x="0" y="${h+1}" width="${w}" height="3" class="fproad"/></svg>`;
+}
+
+/* Draw each icon on a tiny canvas, then scale up with crisp pixels for a pixel-art look. */
+const CACHE={};
+function iconURL(shop){
+  if(CACHE[shop]) return CACHE[shop];
+  const S=20, c=document.createElement("canvas"); c.width=c.height=S;
+  const g=c.getContext("2d");
+  g.textAlign="center"; g.textBaseline="middle";
+  g.font=`16px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+  g.fillText(ICON[shop]||"🏠",S/2,S/2+1);
+  // snap alpha so edges look like hard pixels
+  try{const d=g.getImageData(0,0,S,S),a=d.data;for(let i=3;i<a.length;i+=4)a[i]=a[i]>110?255:0;g.putImageData(d,0,0);}catch(e){}
+  return CACHE[shop]=c.toDataURL();
+}
+const img=(s,cls="")=>`<img class="ico ${cls}" src="${iconURL(s)}" alt="">`;
+
+const COMBOS=RAW.split("\n").map(l=>{const[n,a,b,c,lp,pr]=l.split("|");return{n,parts:[a,b,c],lp:+lp,pr:+pr}});
+const count={};COMBOS.forEach(c=>c.parts.forEach(p=>count[p]=(count[p]||0)+1));
+const SHOPS=Object.keys(count).sort((a,b)=>a.localeCompare(b));
+
+
+
+
+/* Translated names (unofficial). Keys are the English names used by the Kairosoft Wiki. Format per line: English|日本語|繁體中文 */
+const BLD_TXT=`24-7 Mart|コンビニ|便利店
+3-Star Hotel|三ツ星ホテル|三星級酒店
+Ackbar Statue|アクバー像|阿克巴像
+Airport|空港|機場
+Ancient Pine|古松|古松
+Angelic Kairo Statue|天使カイロ像|天使開羅像
+Anime Shop|アニメショップ|動漫店
+Aquarium|水族館|水族館
+Bakery|パン屋|麵包店
+Bank|銀行|銀行
+Baseball Park|野球場|棒球場
+BBQ House|焼肉屋|燒肉店
+Beach House|海の家|海灘小屋
+Bearington Statue|ベアリントン像|熊靈頓像
+Beautician|美容院|美容院
+Bench|ベンチ|長椅
+Bike Shop|自転車屋|單車店
+Blogbuster|レンタルビデオ店|影碟租借店
+Bookstore|本屋|書店
+Boulder|岩|巨石
+Boutique|ブティック|時裝店
+Bowling Alley|ボウリング場|保齡球館
+Bronze Trophy|銅トロフィー|銅獎盃
+Bunny Statue|うさぎ像|兔子像
+Bus Stop|バス停|巴士站
+Cactus|サボテン|仙人掌
+Cafe|カフェ|咖啡店
+Cakery|ケーキ屋|蛋糕店
+Camp Site|キャンプ場|露營場
+Candy Shop|駄菓子屋|糖果店
+Car Dealer|車屋|汽車店
+Casino|カジノ|賭場
+Castle|お城|城堡
+Cell Shop|携帯ショップ|手機店
+Cherry Tree|桜の木|櫻花樹
+Chimpan Z Statue|チンパンZ像|黑猩猩Z像
+Cinema|映画館|電影院
+Clinic|診療所|診所
+Clock Tower|時計台|鐘樓
+Comms Tower|電波塔|電波塔
+Concert Hall|コンサートホール|音樂廳
+Contractors|工務店|建築公司
+Cram School|塾|補習社
+Creperie|クレープ屋|可麗餅店
+Dance Club|クラブ|夜店
+Dept. Store|デパート|百貨公司
+Diner|食堂|食堂
+Doggie Statue|わんこ像|狗狗像
+Donut Shop|ドーナツ屋|冬甩店
+Drugstore|ドラッグストア|藥房
+Dry Cleaner|クリーニング屋|洗衣店
+Ducky Statue|アヒル像|鴨仔像
+Estate Agent|不動産屋|地產代理
+Farm|畑|農田
+Fast 'n' Fried|ファストフード|快餐店
+Fire Hydrant|消火栓|消防栓
+Fishing Pond|釣り堀|釣魚池
+Fishmonger|魚屋|魚檔
+Florist|花屋|花店
+Flowerbed|花壇|花圃
+Fountain|噴水|噴泉
+Fountain Plaza|噴水広場|噴泉廣場
+Furniture Shop|家具屋|傢俬店
+Game Arcade|ゲームセンター|遊戲機中心
+Game Shop|ゲームショップ|遊戲店
+Gift Shop|お土産屋|手信店
+Gingko|イチョウ|銀杏
+Gold Trophy|金トロフィー|金獎盃
+Golf Course|ゴルフ場|高爾夫球場
+Golf Training Center|ゴルフ練習場|高爾夫練習場
+Greengrocer|八百屋|蔬果店
+Gym|ジム|健身室
+Heated Pool|温水プール|暖水泳池
+Helipad|ヘリポート|直升機坪
+High-Rise|ビル|大廈
+Home Center|ホームセンター|家居用品中心
+Home Elec.|家電屋|電器店
+Hospital|病院|醫院
+Hydrangeas|アジサイ|繡球花
+Info Center|案内所|詢問處
+Jewelry Shop|宝石店|珠寶店
+Kairo Bldg|カイロビル|開羅大廈
+Kairo Statue|カイロ像|開羅像
+Kairodad Statue|カイロパパ像|開羅爸爸像
+Kairoman Statue|カイロマン像|開羅俠像
+Kairopuppy Statue|カイロ犬像|開羅狗像
+Local Center|公民館|社區中心
+Lotto Ticket Shop|宝くじ売り場|彩票站
+Lunches 2 GO|弁当屋|便當店
+Minnie Statue|ミニー像|米妮像
+Monument|記念碑|紀念碑
+Motorcycle Shop|バイク屋|電單車店
+Mountain|山|山
+Museum|博物館|博物館
+Music Shop|楽器店|樂器店
+Observation Deck|展望台|觀景台
+Octo-Alien Statue|タコ宇宙人像|章魚外星人像
+Office Bldg|オフィスビル|辦公樓
+Office Tower|オフィスタワー|辦公大樓
+Orchard|果樹園|果園
+Outdoor Pool|屋外プール|露天泳池
+Pagoda|五重塔|五重塔
+Palace|宮殿|宮殿
+Park|公園|公園
+Parking Lot|駐車場|停車場
+PC Shop|パソコンショップ|電腦店
+Pet Shop|ペットショップ|寵物店
+Phone Box|電話ボックス|電話亭
+Pizzeria|ピザ屋|薄餅店
+Planetarium|プラネタリウム|天文館
+Public Restrooms|公衆トイレ|公廁
+Pumpkin Statue|かぼちゃ像|南瓜像
+Racecourse|競馬場|馬場
+Ramen Bar|ラーメン屋|拉麵店
+Ranch|牧場|牧場
+Restaurant|レストラン|餐廳
+Rocket Hall|ロケット館|火箭館
+Safari Park|サファリパーク|野生動物園
+Sally Prin Statue|サリー姫像|莎莉公主像
+Sauna|銭湯|澡堂
+School|学校|學校
+Secretary Statue|秘書像|秘書像
+Security Inc.|警備会社|保安公司
+Sheepy Statue|ひつじ像|綿羊像
+Shoe Shop|靴屋|鞋店
+Shrine|神社|神社
+Silver Trophy|銀トロフィー|銀獎盃
+Skyscraper|超高層ビル|摩天大樓
+Spa|温泉|溫泉
+Spa Hotel|温泉旅館|溫泉旅館
+Sports Grounds|運動場|運動場
+Sports Shop|スポーツ用品店|運動用品店
+Stadium|スタジアム|體育場
+Steakhouse|ステーキハウス|牛扒館
+Subway|地下鉄|地鐵站
+Sunflowers|ひまわり|向日葵
+Supermarket|スーパー|超級市場
+Sushi Joint|寿司屋|壽司店
+Tapas Bar|居酒屋|居酒屋
+Temple|お寺|寺廟
+Theme Park|遊園地|遊樂園
+Toy Shop|おもちゃ屋|玩具店
+Trash Cans|ゴミ箱|垃圾桶
+TV Station|テレビ局|電視台
+Utility Pole|電柱|電線杆
+Vending Machine|自販機|自動販賣機
+Wariobot Statue|ワリオボット像|瓦里機械人像
+Weeping Cherry|しだれ桜|垂枝櫻
+Wharf|波止場|碼頭
+Zoo|動物園|動物園`;
+
+const CMB_TXT=`Picnic|ピクニック|野餐
+Sweets|スイーツ|甜品
+Chubby|ぽっちゃり|肥嘟嘟
+Eating-Out|外食|出外用餐
+Groceries|食料品|食材
+Lazy Day|だらだらな日|懶洋洋的一天
+Jolly|陽気|歡樂
+Family|ファミリー|家庭
+Convenient|便利|便利
+Chill-Out|まったり|悠閒
+Hi-Tec|ハイテク|高科技
+Otaku|オタク|御宅族
+Old-Timey|昔ながら|懷舊
+Seaside|海辺|海邊
+Local|地元|本地
+Student|学生|學生
+Lunch|ランチ|午餐
+Silicon|シリコン|硅谷
+Fishy|魚づくし|魚滿滿
+Lunch-Break|昼休み|午休
+Telecom|通信|通訊
+Cheap Lunch|安いランチ|平價午餐
+Family Sunday|家族の日曜日|家庭星期日
+Pet|ペット|寵物
+Tourist Spot|観光名所|觀光景點
+Money Drain|散財|燒錢
+Aqua|アクア|水之樂
+Teachers|先生|老師
+Bikers|バイカー|電單車手
+Farm Lunch|農場ランチ|農場午餐
+Tranquil|のどか|寧靜
+Biker Show|バイクショー|電單車展
+Meet-Up|待ち合わせ|聚會
+Flowery|花いっぱい|花團錦簇
+Picturesque|絶景|如畫
+Fresh Food|生鮮|新鮮食材
+Clean Tunes|爽やかサウンド|清新樂韻
+Games & Toys|ゲーム＆おもちゃ|遊戲與玩具
+Movie|映画|電影
+Day Off|休日|休息日
+Grandpa|おじいちゃん|爺爺
+Education|教育|教育
+Housekeeper|家事|家務
+Gamers|ゲーマー|玩家
+Weekend|週末|週末
+H. Springs|温泉郷|溫泉鄉
+Health|健康|健康
+Shopping|ショッピング|購物
+Gourmet|グルメ|美食
+Fashion #1|ファッション1|時尚1
+Intellect|知性|知性
+Fitness|フィットネス|健身
+Nature|自然|自然
+Fresh-Made|できたて|新鮮出爐
+Musical|音楽|音樂
+Passing-By|通りすがり|路過
+TV|テレビ|電視
+Alpine Bread|高原パン|高山麵包
+Anti-Theft|防犯|防盜
+Vacation|バカンス|度假
+Farm 2 Shop|産地直送|產地直送
+Agritourism|農業観光|農業旅遊
+Soak|ひとっ風呂|浸浴
+Day-Off Chill|休日まったり|假日放鬆
+House Move|引っ越し|搬屋
+Spectator|観戦|觀賽
+Triple F|トリプルF|三F
+Fishing|釣り|釣魚
+Outdoor Fam|アウトドア家族|戶外家庭
+Nature Special|自然スペシャル|自然特別
+Small Town|小さな町|小鎮
+Medicine|薬|藥物
+Revive|回復|復元
+Splashy|じゃぶじゃぶ|水花四濺
+Fashion #2|ファッション2|時尚2
+Medical|医療|醫療
+Vehicle|乗り物|交通工具
+Touristy|観光地|旅遊勝地
+Rural|田舎|鄉村
+Day Out|お出かけ|出遊
+Bodyguard|ボディーガード|保鑣
+Estate|不動産|地產
+Posh|高級|高檔
+Pleasure|娯楽|娛樂
+Culture|文化|文化
+Industry|産業|工業
+Animal|動物|動物
+Workaholic|仕事中毒|工作狂
+Never-Lost|迷わない|不迷路
+Kairo|カイロ|開羅
+Blessings|ご利益|祝福
+Kairo Fun|カイロファン|開羅樂
+Security|セキュリティ|保安
+Engineer|エンジニア|工程師
+Media|メディア|媒體
+Foodie|食通|為食
+Night Out|夜遊び|夜遊
+Outdoor|アウトドア|戶外
+Office Clerk|会社員|白領
+Tech & Nature|技術と自然|科技與自然
+Seaside Tour|海辺ツアー|海邊遊
+Souvenir|お土産|手信
+Food Special|料理スペシャル|美食特別
+Spa Special|スパスペシャル|溫泉特別
+Beef Special|牛肉スペシャル|牛肉特別
+Temple Special|寺スペシャル|寺廟特別
+Sweet Special|スイーツスペシャル|甜品特別
+Sport Special|スポーツスペシャル|運動特別
+Car Special|車スペシャル|汽車特別
+Museum Special|博物館スペシャル|博物館特別
+Swimming|水泳|游泳
+Outfitters|装備|裝備
+Smart|賢い|聰明
+Popular|人気|人氣
+Sporty|スポーティ|運動型
+DIY|DIY|DIY
+Grown-Up|大人|成人
+Oriental|オリエンタル|東方
+Celeb|セレブ|名人
+Business|ビジネス|商業
+Sinister|不穏|陰森
+Hollywood|ハリウッド|荷里活
+Kairo Park|カイロパーク|開羅公園
+Cyclists|サイクリスト|單車手
+Live Gig|ライブ|現場演出
+Cram Combo|受験|補習
+Spring Deal|春のセール|春季優惠
+Safe Flight|安全飛行|平安飛行
+Schoolday|登校日|上學日
+Time-Saver|時短|慳時間
+Easy Tour|気軽な旅|輕鬆遊
+Healthcare|ヘルスケア|醫療保健
+Hot Events|熱いイベント|熱門活動
+Surveillance|監視|監察
+Sea Special|海スペシャル|海洋特別
+Money Special|お金スペシャル|金錢特別
+Rich Special|リッチスペシャル|富豪特別
+Shop Special|ショップスペシャル|商店特別
+Historic Special|歴史スペシャル|歷史特別
+Bike Special|バイクスペシャル|電單車特別
+Farm Special|農場スペシャル|農場特別
+Fun Special|遊びスペシャル|娛樂特別
+Movie Special|映画スペシャル|電影特別
+Golf|ゴルフ|高爾夫
+Suburb|郊外|郊區
+Athletic|陸上|田徑
+Hole-in-One|ホールインワン|一桿進洞
+Training|トレーニング|訓練
+Furry Critter|もふもふ|毛茸茸
+Eventful|イベント満載|多姿多彩
+Critter|生き物|生物
+Amusement|娯楽番組|娛樂節目
+High-Rise|高層ビル|高樓
+Castle|お城|城堡
+Aviation|航空|航空
+Date|デート|約會
+Special|スペシャル|特別
+Consortium|財閥|財團
+Big Bucks|大金|大錢
+Subway|地下鉄|地鐵
+Castle Special|城スペシャル|城堡特別
+Cherry Special|桜スペシャル|櫻花特別
+Sushi Special|寿司スペシャル|壽司特別
+Ducky|アヒル|鴨仔
+Ackbar|アクバー|阿克巴
+Kairoman|カイロマン|開羅俠
+Kairopuppy|カイロ犬|開羅狗
+Kairodad|カイロパパ|開羅爸爸
+Bearington|ベアリントン|熊靈頓
+Sally Prin|サリー姫|莎莉公主
+Chimpan Z|チンパンZ|黑猩猩Z
+Pumpkin|かぼちゃ|南瓜
+Secretary|秘書|秘書
+Sheepy|ひつじ|綿羊
+Octo-Alien|タコ宇宙人|章魚外星人
+Minnie|ミニー|米妮
+Wariobot|ワリオボット|瓦里機械人
+Bunny|うさぎ|兔子
+Angelic Kairobot|天使カイロボ|天使開羅機械人
+Space|宇宙|太空
+Animal Love|動物愛|愛動物
+Livestock|家畜|家畜
+Corporate|企業|企業
+Big-Spender|大盤振る舞い|大花筒
+Hill|丘|山丘
+Smiley|スマイル|笑臉`;
+
+const NAMES={ja:{b:{},c:{}},zh:{b:{},c:{}}};
+BLD_TXT.split("\n").forEach(l=>{const[e,j,z]=l.split("|");NAMES.ja.b[e]=j;NAMES.zh.b[e]=z;});
+CMB_TXT.split("\n").forEach(l=>{const[e,j,z]=l.split("|");NAMES.ja.c[e]=j;NAMES.zh.c[e]=z;});
+Object.assign(NAMES,{"zhs":{"b":{"24-7 Mart":"便利店","3-Star Hotel":"三星级酒店","Ackbar Statue":"阿克巴像","Airport":"机场","Ancient Pine":"古松","Angelic Kairo Statue":"天使开罗像","Anime Shop":"动漫店","Aquarium":"水族馆","Bakery":"面包店","Bank":"银行","Baseball Park":"棒球场","BBQ House":"烤肉店","Beach House":"海滩小屋","Bearington Statue":"熊灵顿像","Beautician":"美容院","Bench":"长椅","Bike Shop":"自行车店","Blogbuster":"影碟出租店","Bookstore":"书店","Boulder":"巨石","Boutique":"时装店","Bowling Alley":"保龄球馆","Bronze Trophy":"铜奖杯","Bunny Statue":"兔子像","Bus Stop":"公交站","Cactus":"仙人掌","Cafe":"咖啡店","Cakery":"蛋糕店","Camp Site":"露营地","Candy Shop":"糖果店","Car Dealer":"汽车店","Casino":"赌场","Castle":"城堡","Cell Shop":"手机店","Cherry Tree":"樱花树","Chimpan Z Statue":"黑猩猩Z像","Cinema":"电影院","Clinic":"诊所","Clock Tower":"钟楼","Comms Tower":"电波塔","Concert Hall":"音乐厅","Contractors":"建筑公司","Cram School":"补习班","Creperie":"可丽饼店","Dance Club":"夜店","Dept. Store":"百货公司","Diner":"食堂","Doggie Statue":"狗狗像","Donut Shop":"甜甜圈店","Drugstore":"药店","Dry Cleaner":"洗衣店","Ducky Statue":"小鸭像","Estate Agent":"房产中介","Farm":"农田","Fast 'n' Fried":"快餐店","Fire Hydrant":"消防栓","Fishing Pond":"钓鱼池","Fishmonger":"鱼店","Florist":"花店","Flowerbed":"花圃","Fountain":"喷泉","Fountain Plaza":"喷泉广场","Furniture Shop":"家具店","Game Arcade":"电玩城","Game Shop":"游戏店","Gift Shop":"特产店","Gingko":"银杏","Gold Trophy":"金奖杯","Golf Course":"高尔夫球场","Golf Training Center":"高尔夫练习场","Greengrocer":"蔬果店","Gym":"健身房","Heated Pool":"恒温泳池","Helipad":"直升机坪","High-Rise":"大厦","Home Center":"家居用品中心","Home Elec.":"电器店","Hospital":"医院","Hydrangeas":"绣球花","Info Center":"咨询处","Jewelry Shop":"珠宝店","Kairo Bldg":"开罗大厦","Kairo Statue":"开罗像","Kairodad Statue":"开罗爸爸像","Kairoman Statue":"开罗侠像","Kairopuppy Statue":"开罗狗像","Local Center":"社区中心","Lotto Ticket Shop":"彩票站","Lunches 2 GO":"便当店","Minnie Statue":"米妮像","Monument":"纪念碑","Motorcycle Shop":"摩托车店","Mountain":"山","Museum":"博物馆","Music Shop":"乐器店","Observation Deck":"观景台","Octo-Alien Statue":"章鱼外星人像","Office Bldg":"办公楼","Office Tower":"办公大楼","Orchard":"果园","Outdoor Pool":"露天泳池","Pagoda":"五重塔","Palace":"宫殿","Park":"公园","Parking Lot":"停车场","PC Shop":"电脑店","Pet Shop":"宠物店","Phone Box":"电话亭","Pizzeria":"披萨店","Planetarium":"天文馆","Public Restrooms":"公厕","Pumpkin Statue":"南瓜像","Racecourse":"马场","Ramen Bar":"拉面店","Ranch":"牧场","Restaurant":"餐厅","Rocket Hall":"火箭馆","Safari Park":"野生动物园","Sally Prin Statue":"莎莉公主像","Sauna":"澡堂","School":"学校","Secretary Statue":"秘书像","Security Inc.":"保安公司","Sheepy Statue":"绵羊像","Shoe Shop":"鞋店","Shrine":"神社","Silver Trophy":"银奖杯","Skyscraper":"摩天大楼","Spa":"温泉","Spa Hotel":"温泉旅馆","Sports Grounds":"运动场","Sports Shop":"运动用品店","Stadium":"体育场","Steakhouse":"牛排馆","Subway":"地铁站","Sunflowers":"向日葵","Supermarket":"超市","Sushi Joint":"寿司店","Tapas Bar":"居酒屋","Temple":"寺庙","Theme Park":"游乐园","Toy Shop":"玩具店","Trash Cans":"垃圾桶","TV Station":"电视台","Utility Pole":"电线杆","Vending Machine":"自动贩卖机","Wariobot Statue":"瓦里机器人像","Weeping Cherry":"垂枝樱","Wharf":"码头","Zoo":"动物园"},"c":{"Picnic":"野餐","Sweets":"甜品","Chubby":"肥嘟嘟","Eating-Out":"出外用餐","Groceries":"食材","Lazy Day":"懒洋洋的一天","Jolly":"欢乐","Family":"家庭","Convenient":"便利","Chill-Out":"悠闲","Hi-Tec":"高科技","Otaku":"御宅族","Old-Timey":"怀旧","Seaside":"海边","Local":"本地","Student":"学生","Lunch":"午餐","Silicon":"硅谷","Fishy":"鱼满满","Lunch-Break":"午休","Telecom":"通讯","Cheap Lunch":"平价午餐","Family Sunday":"家庭星期日","Pet":"宠物","Tourist Spot":"观光景点","Money Drain":"烧钱","Aqua":"水之乐","Teachers":"老师","Bikers":"摩托车手","Farm Lunch":"农场午餐","Tranquil":"宁静","Biker Show":"摩托车展","Meet-Up":"聚会","Flowery":"花团锦簇","Picturesque":"如画","Fresh Food":"新鲜食材","Clean Tunes":"清新乐韵","Games & Toys":"游戏与玩具","Movie":"电影","Day Off":"休息日","Grandpa":"爷爷","Education":"教育","Housekeeper":"家务","Gamers":"玩家","Weekend":"周末","H. Springs":"温泉乡","Health":"健康","Shopping":"购物","Gourmet":"美食","Fashion #1":"时尚1","Intellect":"知性","Fitness":"健身","Nature":"自然","Fresh-Made":"新鲜出炉","Musical":"音乐","Passing-By":"路过","TV":"电视","Alpine Bread":"高山面包","Anti-Theft":"防盗","Vacation":"度假","Farm 2 Shop":"产地直送","Agritourism":"农业旅游","Soak":"浸浴","Day-Off Chill":"假日放松","House Move":"搬家","Spectator":"观赛","Triple F":"三F","Fishing":"钓鱼","Outdoor Fam":"户外家庭","Nature Special":"自然特别","Small Town":"小镇","Medicine":"药物","Revive":"复原","Splashy":"水花四溅","Fashion #2":"时尚2","Medical":"医疗","Vehicle":"交通工具","Touristy":"旅游胜地","Rural":"乡村","Day Out":"出游","Bodyguard":"保镖","Estate":"地产","Posh":"高档","Pleasure":"娱乐","Culture":"文化","Industry":"工业","Animal":"动物","Workaholic":"工作狂","Never-Lost":"不迷路","Kairo":"开罗","Blessings":"祝福","Kairo Fun":"开罗乐","Security":"保安","Engineer":"工程师","Media":"媒体","Foodie":"吃货","Night Out":"夜游","Outdoor":"户外","Office Clerk":"白领","Tech & Nature":"科技与自然","Seaside Tour":"海边游","Souvenir":"纪念品","Food Special":"美食特别","Spa Special":"温泉特别","Beef Special":"牛肉特别","Temple Special":"寺庙特别","Sweet Special":"甜品特别","Sport Special":"运动特别","Car Special":"汽车特别","Museum Special":"博物馆特别","Swimming":"游泳","Outfitters":"装备","Smart":"聪明","Popular":"人气","Sporty":"运动型","DIY":"DIY","Grown-Up":"成人","Oriental":"东方","Celeb":"名人","Business":"商业","Sinister":"阴森","Hollywood":"好莱坞","Kairo Park":"开罗公园","Cyclists":"骑行者","Live Gig":"现场演出","Cram Combo":"补习","Spring Deal":"春季优惠","Safe Flight":"平安飞行","Schoolday":"上学日","Time-Saver":"省时间","Easy Tour":"轻松游","Healthcare":"医疗保健","Hot Events":"热门活动","Surveillance":"监控","Sea Special":"海洋特别","Money Special":"金钱特别","Rich Special":"富豪特别","Shop Special":"商店特别","Historic Special":"历史特别","Bike Special":"摩托车特别","Farm Special":"农场特别","Fun Special":"娱乐特别","Movie Special":"电影特别","Golf":"高尔夫","Suburb":"郊区","Athletic":"田径","Hole-in-One":"一杆进洞","Training":"训练","Furry Critter":"毛茸茸","Eventful":"多姿多彩","Critter":"生物","Amusement":"娱乐节目","High-Rise":"高楼","Castle":"城堡","Aviation":"航空","Date":"约会","Special":"特别","Consortium":"财团","Big Bucks":"大钱","Subway":"地铁","Castle Special":"城堡特别","Cherry Special":"樱花特别","Sushi Special":"寿司特别","Ducky":"小鸭","Ackbar":"阿克巴","Kairoman":"开罗侠","Kairopuppy":"开罗狗","Kairodad":"开罗爸爸","Bearington":"熊灵顿","Sally Prin":"莎莉公主","Chimpan Z":"黑猩猩Z","Pumpkin":"南瓜","Secretary":"秘书","Sheepy":"绵羊","Octo-Alien":"章鱼外星人","Minnie":"米妮","Wariobot":"瓦里机器人","Bunny":"兔子","Angelic Kairobot":"天使开罗机器人","Space":"太空","Animal Love":"爱动物","Livestock":"家畜","Corporate":"企业","Big-Spender":"大手笔","Hill":"山丘","Smiley":"笑脸"}},"ko":{"b":{"24-7 Mart":"편의점","3-Star Hotel":"3성급 호텔","Ackbar Statue":"아크바 동상","Airport":"공항","Ancient Pine":"고목 소나무","Angelic Kairo Statue":"천사 카이로 동상","Anime Shop":"애니메이션 숍","Aquarium":"수족관","Bakery":"빵집","Bank":"은행","Baseball Park":"야구장","BBQ House":"고깃집","Beach House":"해변의 집","Bearington Statue":"베어링턴 동상","Beautician":"미용실","Bench":"벤치","Bike Shop":"자전거 가게","Blogbuster":"비디오 대여점","Bookstore":"서점","Boulder":"바위","Boutique":"부티크","Bowling Alley":"볼링장","Bronze Trophy":"동 트로피","Bunny Statue":"토끼 동상","Bus Stop":"버스 정류장","Cactus":"선인장","Cafe":"카페","Cakery":"케이크 가게","Camp Site":"캠핑장","Candy Shop":"사탕 가게","Car Dealer":"자동차 판매점","Casino":"카지노","Castle":"성","Cell Shop":"휴대폰 가게","Cherry Tree":"벚나무","Chimpan Z Statue":"침팬Z 동상","Cinema":"영화관","Clinic":"의원","Clock Tower":"시계탑","Comms Tower":"전파탑","Concert Hall":"콘서트홀","Contractors":"건설 회사","Cram School":"학원","Creperie":"크레이프 가게","Dance Club":"클럽","Dept. Store":"백화점","Diner":"식당","Doggie Statue":"강아지 동상","Donut Shop":"도넛 가게","Drugstore":"약국","Dry Cleaner":"세탁소","Ducky Statue":"오리 동상","Estate Agent":"부동산","Farm":"밭","Fast 'n' Fried":"패스트푸드","Fire Hydrant":"소화전","Fishing Pond":"낚시터","Fishmonger":"생선 가게","Florist":"꽃집","Flowerbed":"화단","Fountain":"분수","Fountain Plaza":"분수 광장","Furniture Shop":"가구점","Game Arcade":"오락실","Game Shop":"게임 가게","Gift Shop":"기념품 가게","Gingko":"은행나무","Gold Trophy":"금 트로피","Golf Course":"골프장","Golf Training Center":"골프 연습장","Greengrocer":"채소 가게","Gym":"헬스장","Heated Pool":"온수 수영장","Helipad":"헬리포트","High-Rise":"빌딩","Home Center":"홈센터","Home Elec.":"가전 매장","Hospital":"병원","Hydrangeas":"수국","Info Center":"안내소","Jewelry Shop":"보석 가게","Kairo Bldg":"카이로 빌딩","Kairo Statue":"카이로 동상","Kairodad Statue":"카이로 아빠 동상","Kairoman Statue":"카이로맨 동상","Kairopuppy Statue":"카이로 강아지 동상","Local Center":"주민센터","Lotto Ticket Shop":"복권 판매점","Lunches 2 GO":"도시락 가게","Minnie Statue":"미니 동상","Monument":"기념비","Motorcycle Shop":"오토바이 가게","Mountain":"산","Museum":"박물관","Music Shop":"악기점","Observation Deck":"전망대","Octo-Alien Statue":"문어 외계인 동상","Office Bldg":"사무실 빌딩","Office Tower":"오피스 타워","Orchard":"과수원","Outdoor Pool":"야외 수영장","Pagoda":"오층탑","Palace":"궁전","Park":"공원","Parking Lot":"주차장","PC Shop":"컴퓨터 가게","Pet Shop":"애완동물 가게","Phone Box":"공중전화","Pizzeria":"피자 가게","Planetarium":"천문관","Public Restrooms":"공중화장실","Pumpkin Statue":"호박 동상","Racecourse":"경마장","Ramen Bar":"라멘 가게","Ranch":"목장","Restaurant":"레스토랑","Rocket Hall":"로켓관","Safari Park":"사파리 공원","Sally Prin Statue":"샐리 공주 동상","Sauna":"대중목욕탕","School":"학교","Secretary Statue":"비서 동상","Security Inc.":"경비 회사","Sheepy Statue":"양 동상","Shoe Shop":"신발 가게","Shrine":"신사","Silver Trophy":"은 트로피","Skyscraper":"초고층 빌딩","Spa":"온천","Spa Hotel":"온천 여관","Sports Grounds":"운동장","Sports Shop":"스포츠용품점","Stadium":"스타디움","Steakhouse":"스테이크 하우스","Subway":"지하철역","Sunflowers":"해바라기","Supermarket":"슈퍼마켓","Sushi Joint":"초밥집","Tapas Bar":"선술집","Temple":"절","Theme Park":"놀이공원","Toy Shop":"장난감 가게","Trash Cans":"쓰레기통","TV Station":"방송국","Utility Pole":"전봇대","Vending Machine":"자판기","Wariobot Statue":"와리오봇 동상","Weeping Cherry":"수양벚나무","Wharf":"부두","Zoo":"동물원"},"c":{"Picnic":"소풍","Sweets":"디저트","Chubby":"통통","Eating-Out":"외식","Groceries":"식료품","Lazy Day":"느긋한 하루","Jolly":"즐거움","Family":"가족","Convenient":"편리","Chill-Out":"여유","Hi-Tec":"하이테크","Otaku":"오타쿠","Old-Timey":"옛날 감성","Seaside":"바닷가","Local":"동네","Student":"학생","Lunch":"점심","Silicon":"실리콘","Fishy":"생선 가득","Lunch-Break":"점심시간","Telecom":"통신","Cheap Lunch":"저렴한 점심","Family Sunday":"가족의 일요일","Pet":"애완동물","Tourist Spot":"관광 명소","Money Drain":"돈 낭비","Aqua":"아쿠아","Teachers":"선생님","Bikers":"라이더","Farm Lunch":"농장 점심","Tranquil":"한적함","Biker Show":"바이크 쇼","Meet-Up":"만남","Flowery":"꽃 가득","Picturesque":"절경","Fresh Food":"신선 식품","Clean Tunes":"상쾌한 음악","Games & Toys":"게임과 장난감","Movie":"영화","Day Off":"휴일","Grandpa":"할아버지","Education":"교육","Housekeeper":"살림","Gamers":"게이머","Weekend":"주말","H. Springs":"온천 마을","Health":"건강","Shopping":"쇼핑","Gourmet":"미식","Fashion #1":"패션 1","Intellect":"지성","Fitness":"피트니스","Nature":"자연","Fresh-Made":"갓 만든","Musical":"음악","Passing-By":"지나가는 길","TV":"TV","Alpine Bread":"고원 빵","Anti-Theft":"방범","Vacation":"바캉스","Farm 2 Shop":"산지 직송","Agritourism":"농촌 관광","Soak":"목욕","Day-Off Chill":"휴일 여유","House Move":"이사","Spectator":"관람","Triple F":"트리플 F","Fishing":"낚시","Outdoor Fam":"아웃도어 가족","Nature Special":"자연 스페셜","Small Town":"작은 마을","Medicine":"약","Revive":"회복","Splashy":"첨벙첨벙","Fashion #2":"패션 2","Medical":"의료","Vehicle":"탈것","Touristy":"관광지","Rural":"시골","Day Out":"나들이","Bodyguard":"보디가드","Estate":"부동산","Posh":"고급","Pleasure":"오락","Culture":"문화","Industry":"산업","Animal":"동물","Workaholic":"일중독","Never-Lost":"길 안 잃기","Kairo":"카이로","Blessings":"축복","Kairo Fun":"카이로 펀","Security":"보안","Engineer":"엔지니어","Media":"미디어","Foodie":"미식가","Night Out":"밤 외출","Outdoor":"아웃도어","Office Clerk":"회사원","Tech & Nature":"기술과 자연","Seaside Tour":"바닷가 여행","Souvenir":"기념품","Food Special":"요리 스페셜","Spa Special":"스파 스페셜","Beef Special":"소고기 스페셜","Temple Special":"절 스페셜","Sweet Special":"디저트 스페셜","Sport Special":"스포츠 스페셜","Car Special":"자동차 스페셜","Museum Special":"박물관 스페셜","Swimming":"수영","Outfitters":"장비","Smart":"똑똑함","Popular":"인기","Sporty":"스포티","DIY":"DIY","Grown-Up":"어른","Oriental":"동양","Celeb":"셀럽","Business":"비즈니스","Sinister":"불길함","Hollywood":"할리우드","Kairo Park":"카이로 파크","Cyclists":"자전거 동호인","Live Gig":"라이브","Cram Combo":"입시","Spring Deal":"봄 세일","Safe Flight":"안전 비행","Schoolday":"등교일","Time-Saver":"시간 절약","Easy Tour":"가벼운 여행","Healthcare":"헬스케어","Hot Events":"뜨거운 이벤트","Surveillance":"감시","Sea Special":"바다 스페셜","Money Special":"돈 스페셜","Rich Special":"부자 스페셜","Shop Special":"상점 스페셜","Historic Special":"역사 스페셜","Bike Special":"바이크 스페셜","Farm Special":"농장 스페셜","Fun Special":"놀이 스페셜","Movie Special":"영화 스페셜","Golf":"골프","Suburb":"교외","Athletic":"육상","Hole-in-One":"홀인원","Training":"트레이닝","Furry Critter":"복슬복슬","Eventful":"이벤트 가득","Critter":"생물","Amusement":"예능","High-Rise":"고층 빌딩","Castle":"성","Aviation":"항공","Date":"데이트","Special":"스페셜","Consortium":"재벌","Big Bucks":"큰돈","Subway":"지하철","Castle Special":"성 스페셜","Cherry Special":"벚꽃 스페셜","Sushi Special":"초밥 스페셜","Ducky":"오리","Ackbar":"아크바","Kairoman":"카이로맨","Kairopuppy":"카이로 강아지","Kairodad":"카이로 아빠","Bearington":"베어링턴","Sally Prin":"샐리 공주","Chimpan Z":"침팬Z","Pumpkin":"호박","Secretary":"비서","Sheepy":"양","Octo-Alien":"문어 외계인","Minnie":"미니","Wariobot":"와리오봇","Bunny":"토끼","Angelic Kairobot":"천사 카이로봇","Space":"우주","Animal Love":"동물 사랑","Livestock":"가축","Corporate":"기업","Big-Spender":"큰손","Hill":"언덕","Smiley":"스마일"}}});
+
+const UI={
+en:{title:"專賣街 Combo Finder",sub:"Dream Town Story · tap a shop to see every combo it belongs to. Tap a second shop to show only the combos with both. Add combos to the cart to plan the space they need together.",
+ search:"Search a shop (e.g. Cakery, PC Shop)…",searchAria:"Search shops",noSel:"No shop selected",pickBelow:"Pick a shop below",willAppear:"Its 專賣街 combos will appear here.",
+ selShop:"Selected shop",withBoth:"Combos with both",nCombos:n=>`${n} combo${n===1?"":"s"}`,sortLand:"Land bonus",sortPrice:"Price bonus",sortSpace:"Smallest space",clear:"Clear",
+ tagWiki:"wiki",tagMine:"your fix",tagEst:"estimate",sizeOf:s=>`Footprint of ${s}`,
+ combos:"Combos",tapPartner:"tap a partner shop to jump to it",never:"These two shops never appear in the same combo. Tap one of them in the list below to remove it.",
+ land:"Land",price:"Price",tiles:n=>`${n} tiles`,estimate:"≈ estimate",rowAlong:(w,h)=>`Row along a road: ${w}×${h}`,addCart:"+ Cart",inCart:"✓ In cart",cartFull:"Cart is full",
+ allShops:"All shops",ofN:(a,b)=>`${a} of ${b}`,noMatch:"No shop matches that name.",
+ note:"Space: total tiles the buildings cover, and the strip they need side by side along one road with each door (short side) facing the road (road tiles not counted). Decorations such as plants, statues, trophies, fountains and monuments need no road; you can change this for any building at the top. Sizes come from the Size column of the Kairosoft Wiki Structures table (rechecked 8 Oct 2026); sizes marked ≈ are estimates, and you can change any size in the box at the top. Combo data: Kairosoft Wiki, 186 combos checked row by row. Japanese, Chinese and Korean names are unofficial translations and may differ from the in-game names. Icons are original pixel drawings for this tool, not the game's sprites.",
+ cartN:n=>`🛒 ${n} combo${n===1?"":"s"} in cart`,cartEmpty:"🛒 Cart is empty",cartHint:"Add combos with “+ Cart”",plan:"Plan space",
+ planner:"Cart · space planner",close:"Close",emptyCart:m=>`Your cart is empty. Tap “+ Cart” on any combo, add up to ${m}, then come back here.`,remove:"Remove",addMore:"Add at least one more combo to plan them together.",
+ share:"Share buildings between combos",sep:"Build each combo separately",bld:"buildings to build",shared:n=>` (${n} shared)`,covered:"tiles covered",saves:n=>` · saves ${n} vs separate`,
+ smallest:n=>`smallest area found: ${n} tiles`,noLayout:"no layout found",
+ kBlock:"Best layout: compact block, road all around",kRow:"Best layout: one row along a road",kStack:"Layout: one row per combo, each on its own road",
+ legBld:"building",legShared:"shared by 2+ combos",legDash:"dashed = estimated size",
+ whyBlock:"Every shop and facility has its door (short side) on the block's edge, so the road around the block reaches it. Decorations can sit inside.",whyAlt:(w,h)=>` A single row along one road would need ${w}×${h} (${w*h} tiles).`,
+ whyRow:"Every building stands with its door (short side) facing the same road. No smaller block layout was found.",whyStack:"No tighter layout was found in time, so each combo gets its own row. The size includes the 1-tile roads between rows.",
+ sharedNote:(list,many)=>` ${list} ${many?"count":"counts"} toward more than one combo.`,listSep:", ",timedOut:" The search stopped early, so a slightly tighter layout may exist.",
+ showRow:"Show the one-row layout",noLayoutMsg:n=>`No layout found within the search limit. The buildings cover ${n} tiles in total.`,layoutAria:"Suggested layout",lang:"Language",credits:`Credits: combo and building-size data come from the <a href="https://kairosoft.wiki.gg/" target="_blank" rel="noopener">Kairosoft Wiki</a> pages <a href="https://kairosoft.wiki.gg/wiki/Combos_(Dream_Town_Story)" target="_blank" rel="noopener">Combos (Dream Town Story)</a> and <a href="https://kairosoft.wiki.gg/wiki/Structures_(Dream_Town_Story)" target="_blank" rel="noopener">Structures (Dream Town Story)</a>, by the wiki’s contributors, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Changes made: data reorganised into a searchable tool, space and layout calculations added, and names translated. The data in this tool is shared under the same <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> license. Unofficial fan tool, not affiliated with or endorsed by Kairosoft.`,roadYes:"🚪 Needs a road",roadNo:"🌳 No road needed",legDoor:"door (short side, must face a road)",legDeco:"decoration, no road needed"},
+ja:{title:"專賣街 コンボ検索",sub:"Dream Town Story · 店をタップすると、その店が入るコンボがすべて表示されます。2つ目の店をタップすると、両方を含むコンボだけに絞り込みます。コンボをカートに入れると、まとめて必要な広さを計算できます。",
+ search:"店を検索（例：ケーキ屋、Cakery）…",searchAria:"店を検索",noSel:"店が選ばれていません",pickBelow:"下から店を選んでください",willAppear:"その店のコンボがここに表示されます。",
+ selShop:"選択中の店",withBoth:"両方を含むコンボ",nCombos:n=>`コンボ ${n} 件`,sortLand:"地価ボーナス順",sortPrice:"価格ボーナス順",sortSpace:"狭い順",clear:"クリア",
+ tagWiki:"wiki",tagMine:"自分で修正",tagEst:"推定",sizeOf:s=>`${s}の大きさ`,
+ combos:"コンボ",tapPartner:"相手の店をタップするとその店へ移動",never:"この2つの店が同じコンボに入ることはありません。下の一覧でどちらかをタップして外してください。",
+ land:"地価",price:"価格",tiles:n=>`${n} マス`,estimate:"≈ 推定",rowAlong:(w,h)=>`道路沿いに一列：${w}×${h}`,addCart:"+ カート",inCart:"✓ カート内",cartFull:"カートがいっぱいです",
+ allShops:"すべての店",ofN:(a,b)=>`${b} 件中 ${a} 件`,noMatch:"その名前の店はありません。",
+ note:"広さ：建物が占めるマスの合計と、入口（短い辺）を道路に向けて1本の道路沿いに並べたときに必要な幅（道路のマスは含みません）。植物・像・トロフィー・噴水・記念碑などの飾りは道路不要です（上の欄で建物ごとに変更できます）。大きさはKairosoft Wikiの建物一覧「Size」列によります（2026年10月8日に再確認）。≈ は推定値で、上の欄からいつでも変更できます。コンボ情報：Kairosoft Wiki、186件を1件ずつ照合済み。日本語・中国語・韓国語の名前は非公式の翻訳で、ゲーム内の名前とは異なる場合があります。アイコンはこのツール用のオリジナルで、ゲームの画像ではありません。",
+ cartN:n=>`🛒 カートにコンボ ${n} 件`,cartEmpty:"🛒 カートは空です",cartHint:"「+ カート」でコンボを追加",plan:"広さを計算",
+ planner:"カート · 広さプランナー",close:"閉じる",emptyCart:m=>`カートは空です。コンボの「+ カート」をタップして最大 ${m} 件まで追加してください。`,remove:"削除",addMore:"まとめて計算するには、もう1つ以上コンボを追加してください。",
+ share:"コンボ間で建物を共有",sep:"コンボごとに別々に建てる",bld:"建てる建物",shared:n=>`（共有 ${n}）`,covered:"占めるマス",saves:n=>` · 別々より ${n} マス節約`,
+ smallest:n=>`見つかった最小面積：${n} マス`,noLayout:"配置が見つかりません",
+ kBlock:"最適な配置：まとまったブロック（周りを道路で囲む）",kRow:"最適な配置：道路沿いに一列",kStack:"配置：コンボごとに一列、それぞれ別の道路",
+ legBld:"建物",legShared:"2つ以上のコンボで共有",legDash:"点線 = 推定サイズ",
+ whyBlock:"店と施設はすべて入口（短い辺）がブロックの外側にあるので、周りの道路から入れます。飾りは内側に置けます。",whyAlt:(w,h)=>`1本の道路沿いに一列だと ${w}×${h}（${w*h} マス）必要です。`,
+ whyRow:"すべての建物が入口（短い辺）を同じ道路に向けています。これより小さいブロック配置は見つかりませんでした。",whyStack:"時間内にもっと小さい配置が見つからなかったため、コンボごとに一列にしています。列の間の1マスの道路も含みます。",
+ sharedNote:(list)=>`${list}は複数のコンボに数えられます。`,listSep:"、",timedOut:"計算を途中で打ち切ったため、もう少し小さい配置があるかもしれません。",
+ showRow:"一列の配置を表示",noLayoutMsg:n=>`計算の上限内で配置が見つかりませんでした。建物の合計は ${n} マスです。`,layoutAria:"おすすめの配置",lang:"言語",credits:`クレジット：コンボと建物サイズのデータは <a href="https://kairosoft.wiki.gg/" target="_blank" rel="noopener">Kairosoft Wiki</a> のページ <a href="https://kairosoft.wiki.gg/wiki/Combos_(Dream_Town_Story)" target="_blank" rel="noopener">Combos (Dream Town Story)</a> と <a href="https://kairosoft.wiki.gg/wiki/Structures_(Dream_Town_Story)" target="_blank" rel="noopener">Structures (Dream Town Story)</a>（Wiki 編集者による）から引用しており、<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> ライセンスで提供されています。変更点：検索できるツールに再構成し、広さ・配置の計算を追加し、名前を翻訳しました。このツールのデータも同じ <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> ライセンスで共有します。カイロソフトとは無関係の非公式ファンツールです。`,roadYes:"🚪 道路が必要",roadNo:"🌳 道路は不要",legDoor:"入口（短い辺、道路に面する）",legDeco:"飾り（道路不要）"},
+zh:{title:"專賣街 組合搜尋",sub:"Dream Town Story · 點選一間店，查看它所屬的全部專賣街組合。再點選第二間店，只顯示同時包含兩間店的組合。把組合加入購物車，即可計算一起建造所需的空間。",
+ search:"搜尋店舖（例如：蛋糕店、Cakery）…",searchAria:"搜尋店舖",noSel:"未選擇店舖",pickBelow:"請在下方選擇店舖",willAppear:"該店的專賣街組合會在這裡顯示。",
+ selShop:"已選店舖",withBoth:"同時包含兩者的組合",nCombos:n=>`${n} 個組合`,sortLand:"地價加成",sortPrice:"價格加成",sortSpace:"佔地最小",clear:"清除",
+ tagWiki:"wiki",tagMine:"自行修正",tagEst:"估計",sizeOf:s=>`${s} 的佔地`,
+ combos:"組合",tapPartner:"點選其他店舖可跳到該店",never:"這兩間店不會出現在同一個組合中。請在下方清單點選其中一間取消。",
+ land:"地價",price:"價格",tiles:n=>`${n} 格`,estimate:"≈ 估計",rowAlong:(w,h)=>`沿一條道路排成一行：${w}×${h}`,addCart:"+ 購物車",inCart:"✓ 已加入",cartFull:"購物車已滿",
+ allShops:"全部店舖",ofN:(a,b)=>`${a} / ${b}`,noMatch:"沒有符合名稱的店舖。",
+ note:"空間：建築物佔用的總格數，以及入口（短邊）面向道路、沿一條道路並排時所需的長度（不計道路格）。植物、雕像、獎盃、噴泉、紀念碑等裝飾不需道路（可在上方逐一更改）。佔地資料來自 Kairosoft Wiki 建築一覽的「Size」欄（2026年10月8日重新核對）；標示 ≈ 的為估計值，可在上方的欄位隨時更改。組合資料：Kairosoft Wiki，186 個組合已逐行核對。日文、中文及韓文名稱為非官方翻譯，可能與遊戲內名稱不同。圖示為本工具原創的像素圖，並非遊戲圖像。",
+ cartN:n=>`🛒 購物車內有 ${n} 個組合`,cartEmpty:"🛒 購物車是空的",cartHint:"按「+ 購物車」加入組合",plan:"計算空間",
+ planner:"購物車 · 空間規劃",close:"關閉",emptyCart:m=>`購物車是空的。在任何組合按「+ 購物車」，最多加入 ${m} 個，然後再回來這裡。`,remove:"移除",addMore:"請再加入至少一個組合，才能一起計算。",
+ share:"組合之間共用建築",sep:"每個組合分開建造",bld:"需建造的建築",shared:n=>`（共用 ${n} 個）`,covered:"佔用格數",saves:n=>` · 比分開建造省 ${n} 格`,
+ smallest:n=>`找到的最小面積：${n} 格`,noLayout:"找不到排列",
+ kBlock:"最佳排列：緊密方塊，四周圍繞道路",kRow:"最佳排列：沿一條道路排成一行",kStack:"排列：每個組合一行，各有自己的道路",
+ legBld:"建築",legShared:"由 2 個以上組合共用",legDash:"虛線 = 估計佔地",
+ whyBlock:"所有店舖和設施的入口（短邊）都在方塊外緣，四周的道路可以到達。裝飾可以放在內側。",whyAlt:(w,h)=>`如果沿一條道路排成一行，需要 ${w}×${h}（${w*h} 格）。`,
+ whyRow:"所有建築的入口（短邊）都面向同一條道路。找不到更小的方塊排列。",whyStack:"在時限內找不到更緊密的排列，所以每個組合各排一行。尺寸已包括行與行之間 1 格寬的道路。",
+ sharedNote:(list)=>`${list}同時計入多於一個組合。`,listSep:"、",timedOut:"搜尋提早停止，可能還有稍為更緊密的排列。",
+ showRow:"顯示一行排列",noLayoutMsg:n=>`在搜尋上限內找不到排列。建築合共佔 ${n} 格。`,layoutAria:"建議排列",lang:"語言",credits:`鳴謝：組合及建築佔地資料來自 <a href="https://kairosoft.wiki.gg/" target="_blank" rel="noopener">Kairosoft Wiki</a> 的頁面 <a href="https://kairosoft.wiki.gg/wiki/Combos_(Dream_Town_Story)" target="_blank" rel="noopener">Combos (Dream Town Story)</a> 及 <a href="https://kairosoft.wiki.gg/wiki/Structures_(Dream_Town_Story)" target="_blank" rel="noopener">Structures (Dream Town Story)</a>（由 Wiki 編者撰寫），以 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 授權。修改內容：把資料整理成可搜尋的工具、加入空間及排列計算，並翻譯名稱。本工具的資料以相同的 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 授權分享。本工具為非官方愛好者作品，與開羅遊戲（Kairosoft）無關，亦未獲其認可。`,roadYes:"🚪 需要道路",roadNo:"🌳 不需道路",legDoor:"入口（短邊，須面向道路）",legDeco:"裝飾（不需道路）"},
+zhs:{title:"专卖街 组合搜索",sub:"Dream Town Story · 点击一家店，查看它所属的全部专卖街组合。再点击第二家店，只显示同时包含两家店的组合。把组合加入购物车，即可计算一起建造所需的空间。",
+ search:"搜索店铺（例如：蛋糕店、Cakery）…",searchAria:"搜索店铺",noSel:"未选择店铺",pickBelow:"请在下方选择店铺",willAppear:"该店的专卖街组合会在这里显示。",
+ selShop:"已选店铺",withBoth:"同时包含两者的组合",nCombos:n=>`${n} 个组合`,sortLand:"地价加成",sortPrice:"价格加成",sortSpace:"占地最小",clear:"清除",
+ tagWiki:"wiki",tagMine:"自行修正",tagEst:"估计",sizeOf:s=>`${s} 的占地`,
+ combos:"组合",tapPartner:"点击其他店铺可跳到该店",never:"这两家店不会出现在同一个组合中。请在下方清单点击其中一间取消。",
+ land:"地价",price:"价格",tiles:n=>`${n} 格`,estimate:"≈ 估计",rowAlong:(w,h)=>`沿一条道路排成一行：${w}×${h}`,addCart:"+ 购物车",inCart:"✓ 已加入",cartFull:"购物车已满",
+ allShops:"全部店铺",ofN:(a,b)=>`${a} / ${b}`,noMatch:"没有符合名称的店铺。",
+ note:"空间：建筑物占用的总格数，以及入口（短边）面向道路、沿一条道路并排时所需的长度（不计道路格）。植物、雕像、奖杯、喷泉、纪念碑等装饰不需道路（可在上方逐一更改）。占地资料来自 Kairosoft Wiki 建筑一览的“Size”栏（2026年10月8日重新核对）；标示 ≈ 的为估计值，可在上方的栏位随时更改。组合资料：Kairosoft Wiki，186 个组合已逐行核对。日文、中文及韩文名称为非官方翻译，可能与游戏内名称不同。图示为本工具原创的像素图，并非游戏图像。",
+ cartN:n=>`🛒 购物车内有 ${n} 个组合`,cartEmpty:"🛒 购物车是空的",cartHint:"按“+ 购物车”加入组合",plan:"计算空间",
+ planner:"购物车 · 空间规划",close:"关闭",emptyCart:m=>`购物车是空的。在任何组合按“+ 购物车”，最多加入 ${m} 个，然后再回来这里。`,remove:"移除",addMore:"请再加入至少一个组合，才能一起计算。",
+ share:"组合之间共用建筑",sep:"每个组合分开建造",bld:"需建造的建筑",shared:n=>`（共用 ${n} 个）`,covered:"占用格数",saves:n=>` · 比分开建造省 ${n} 格`,
+ smallest:n=>`找到的最小面积：${n} 格`,noLayout:"找不到排列",
+ kBlock:"最佳排列：紧密方块，四周围绕道路",kRow:"最佳排列：沿一条道路排成一行",kStack:"排列：每个组合一行，各有自己的道路",
+ legBld:"建筑",legShared:"由 2 个以上组合共用",legDash:"虚线 = 估计占地",
+ whyBlock:"所有店铺和设施的入口（短边）都在方块外缘，四周的道路可以到达。装饰可以放在内侧。",whyAlt:(w,h)=>`如果沿一条道路排成一行，需要 ${w}×${h}（${w*h} 格）。`,
+ whyRow:"所有建筑的入口（短边）都面向同一条道路。找不到更小的方块排列。",whyStack:"在时限内找不到更紧密的排列，所以每个组合各排一行。尺寸已包括行与行之间 1 格宽的道路。",
+ sharedNote:(list)=>`${list}同时计入多于一个组合。`,listSep:"、",timedOut:"搜索提早停止，可能还有稍微更紧密的排列。",
+ showRow:"显示一行排列",noLayoutMsg:n=>`在搜索上限内找不到排列。建筑合共占 ${n} 格。`,layoutAria:"建议排列",lang:"语言",credits:`致谢：组合及建筑占地数据来自 <a href="https://kairosoft.wiki.gg/" target="_blank" rel="noopener">Kairosoft Wiki</a> 的页面 <a href="https://kairosoft.wiki.gg/wiki/Combos_(Dream_Town_Story)" target="_blank" rel="noopener">Combos (Dream Town Story)</a> 和 <a href="https://kairosoft.wiki.gg/wiki/Structures_(Dream_Town_Story)" target="_blank" rel="noopener">Structures (Dream Town Story)</a>（由 Wiki 编者撰写），以 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 授权。修改内容：把数据整理成可搜索的工具、加入空间及排列计算，并翻译名称。本工具的数据以相同的 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 授权分享。本工具为非官方爱好者作品，与开罗游戏（Kairosoft）无关，也未获其认可。`,roadYes:"🚪 需要道路",roadNo:"🌳 不需道路",legDoor:"入口（短边，须面向道路）",legDeco:"装饰（不需道路）"},
+ko:{title:"專賣街 콤보 찾기",sub:"Dream Town Story · 가게를 누르면 그 가게가 들어가는 콤보를 모두 볼 수 있습니다. 두 번째 가게를 누르면 둘 다 들어간 콤보만 보여 줍니다. 콤보를 장바구니에 담으면 함께 짓는 데 필요한 공간을 계산합니다.",
+ search:"가게 검색 (예: 케이크 가게, Cakery)…",searchAria:"가게 검색",noSel:"선택한 가게 없음",pickBelow:"아래에서 가게를 고르세요",willAppear:"그 가게의 콤보가 여기에 표시됩니다.",
+ selShop:"선택한 가게",withBoth:"둘 다 들어간 콤보",nCombos:n=>`콤보 ${n}개`,sortLand:"지가 보너스순",sortPrice:"가격 보너스순",sortSpace:"작은 공간순",clear:"지우기",
+ tagWiki:"wiki",tagMine:"직접 수정",tagEst:"추정",sizeOf:s=>`${s} 크기`,
+ combos:"콤보",tapPartner:"다른 가게를 누르면 그 가게로 이동",never:"이 두 가게는 같은 콤보에 들어가지 않습니다. 아래 목록에서 하나를 눌러 빼 주세요.",
+ land:"지가",price:"가격",tiles:n=>`${n}칸`,estimate:"≈ 추정",rowAlong:(w,h)=>`도로를 따라 한 줄: ${w}×${h}`,addCart:"+ 장바구니",inCart:"✓ 담김",cartFull:"장바구니가 가득 찼습니다",
+ allShops:"모든 가게",ofN:(a,b)=>`${b}개 중 ${a}개`,noMatch:"그 이름의 가게가 없습니다.",
+ note:"공간: 건물이 차지하는 칸의 합계와, 입구(짧은 변)를 도로로 향하게 해서 도로 하나를 따라 나란히 놓을 때 필요한 길이입니다(도로 칸은 제외). 식물, 동상, 트로피, 분수, 기념비 같은 장식은 도로가 필요 없습니다(위에서 건물마다 바꿀 수 있습니다). 크기는 Kairosoft Wiki 건물 목록의 Size 열 기준입니다(2026년 10월 8일 재확인). ≈ 표시는 추정값이며 위의 칸에서 언제든 바꿀 수 있습니다. 콤보 정보: Kairosoft Wiki, 186개를 한 줄씩 대조했습니다. 일본어·중국어·한국어 이름은 비공식 번역으로, 게임 속 이름과 다를 수 있습니다. 아이콘은 이 도구용 오리지널 픽셀 그림이며 게임 이미지가 아닙니다.",
+ cartN:n=>`🛒 장바구니에 콤보 ${n}개`,cartEmpty:"🛒 장바구니가 비어 있습니다",cartHint:"“+ 장바구니”로 콤보를 담으세요",plan:"공간 계산",
+ planner:"장바구니 · 공간 플래너",close:"닫기",emptyCart:m=>`장바구니가 비어 있습니다. 콤보의 “+ 장바구니”를 눌러 최대 ${m}개까지 담은 뒤 다시 오세요.`,remove:"빼기",addMore:"함께 계산하려면 콤보를 하나 이상 더 담으세요.",
+ share:"콤보끼리 건물 공유",sep:"콤보마다 따로 짓기",bld:"지을 건물",shared:n=>` (공유 ${n}개)`,covered:"차지하는 칸",saves:n=>` · 따로 지을 때보다 ${n}칸 절약`,
+ smallest:n=>`찾은 최소 면적: ${n}칸`,noLayout:"배치를 찾지 못함",
+ kBlock:"최적 배치: 촘촘한 블록, 사방이 도로",kRow:"최적 배치: 도로를 따라 한 줄",kStack:"배치: 콤보마다 한 줄, 각자 도로",
+ legBld:"건물",legShared:"2개 이상 콤보가 공유",legDash:"점선 = 추정 크기",
+ whyBlock:"모든 가게와 시설의 입구(짧은 변)가 블록 바깥쪽에 있어서 둘레 도로로 들어갈 수 있습니다. 장식은 안쪽에 둘 수 있습니다.",whyAlt:(w,h)=>` 도로 하나를 따라 한 줄로 놓으면 ${w}×${h}(${w*h}칸)가 필요합니다.`,
+ whyRow:"모든 건물의 입구(짧은 변)가 같은 도로를 향합니다. 더 작은 블록 배치는 찾지 못했습니다.",whyStack:"시간 안에 더 촘촘한 배치를 찾지 못해 콤보마다 한 줄씩 놓았습니다. 줄 사이의 1칸 도로도 포함한 크기입니다.",
+ sharedNote:(list)=>` ${list}은(는) 여러 콤보에 함께 계산됩니다.`,listSep:", ",timedOut:" 계산을 중간에 멈췄기 때문에 조금 더 촘촘한 배치가 있을 수 있습니다.",
+ showRow:"한 줄 배치 보기",noLayoutMsg:n=>`계산 한도 안에서 배치를 찾지 못했습니다. 건물은 모두 ${n}칸입니다.`,layoutAria:"추천 배치",lang:"언어",credits:`출처: 콤보와 건물 크기 데이터는 <a href="https://kairosoft.wiki.gg/" target="_blank" rel="noopener">Kairosoft Wiki</a>의 <a href="https://kairosoft.wiki.gg/wiki/Combos_(Dream_Town_Story)" target="_blank" rel="noopener">Combos (Dream Town Story)</a>, <a href="https://kairosoft.wiki.gg/wiki/Structures_(Dream_Town_Story)" target="_blank" rel="noopener">Structures (Dream Town Story)</a> 페이지(위키 기여자 작성)에서 가져왔으며 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 라이선스를 따릅니다. 변경 사항: 검색할 수 있는 도구로 재구성하고, 공간·배치 계산을 추가하고, 이름을 번역했습니다. 이 도구의 데이터도 같은 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 라이선스로 공유합니다. 카이로소프트와 관련이 없고 승인을 받지 않은 비공식 팬 도구입니다.`,roadYes:"🚪 도로 필요",roadNo:"🌳 도로 불필요",legDoor:"입구 (짧은 변, 도로를 향함)",legDeco:"장식 (도로 불필요)"}
+};
+
+let selected=[]; let sortMode="lp"; let cart=[]; let share=true; let sheetOpen=false;
+let lang=(()=>{try{const s=localStorage.getItem("dts-lang");if(s&&UI[s])return s;}catch(e){}const n=(navigator.language||"en").toLowerCase();return n.startsWith("ja")?"ja":n.startsWith("ko")?"ko":n.startsWith("zh")?(/hant|tw|hk|mo/.test(n)?"zh":"zhs"):"en";})();
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const L=()=>UI[lang];
+const LOC={en:"en",ja:"ja",zh:"zh-Hant",zhs:"zh-Hans",ko:"ko"};
+const bn=s=>lang==="en"?s:(NAMES[lang].b[s]||s);          // building name in current language
+const cn=s=>lang==="en"?s:(NAMES[lang].c[s]||s);          // combo name in current language
+const enSub=s=>lang==="en"?"":`<span class="en">${esc(s)}</span>`;
+const BYNAME=Object.fromEntries(COMBOS.map(c=>[c.n,c]));
+const MAXCART=4;
+
+function save(){try{localStorage.setItem("dts-sel",JSON.stringify(selected));localStorage.setItem("dts-cart",JSON.stringify(cart));localStorage.setItem("dts-share",share?"1":"0");localStorage.setItem("dts-lang",lang);}catch(e){}}
+function setSel(s){selected=s;save();render();}
+function pick(shop){
+  if(selected.includes(shop)) setSel(selected.filter(x=>x!==shop));
+  else setSel(selected.length>=2?[selected[1],shop]:[...selected,shop]);
+  window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+}
+function toggleCart(n){
+  if(cart.includes(n)) cart=cart.filter(x=>x!==n);
+  else if(cart.length<MAXCART) cart=[...cart,n];
+  save(); render();
+}
+function setLang(l){lang=l;save();applyStatic();render();}
+
+/* ---------- Space planner ---------- */
+const touch=(r,s)=>{
+  const oy=Math.min(r.y+r.h,s.y+s.h)-Math.max(r.y,s.y), ox=Math.min(r.x+r.w,s.x+s.w)-Math.max(r.x,s.x);
+  return ((r.x+r.w===s.x||s.x+s.w===r.x)&&oy>0)||((r.y+r.h===s.y||s.y+s.h===r.y)&&ox>0);
+};
+function groupConnected(ids,P){
+  const seen=new Set([ids[0]]),st=[ids[0]];
+  while(st.length){const a=st.pop();for(const b of ids) if(!seen.has(b)&&touch(P[a],P[b])){seen.add(b);st.push(b);}}
+  return seen.size===ids.length;
+}
+function permutations(n){const out=[],a=[...Array(n).keys()];(function go(k){if(k===n){out.push(a.slice());return}for(let i=k;i<n;i++){[a[k],a[i]]=[a[i],a[k]];go(k+1);[a[k],a[i]]=[a[i],a[k]];}})(0);return out;}
+
+function plan(combos){
+  // Buildings: shared once when sharing is on
+  let items=[], groups=[];
+  if(share){
+    const names=[...new Set(combos.flatMap(c=>c.parts))];
+    items=names.map(n=>({n}));
+    groups=combos.map(c=>c.parts.map(p=>names.indexOf(p)));
+  }else{
+    combos.forEach(c=>{groups.push(c.parts.map(p=>{items.push({n:p});return items.length-1}));});
+  }
+  items.forEach(it=>{const z=size(it.n);it.a=Math.max(z.w,z.h);it.b=Math.min(z.w,z.h);it.est=z.src==="est";it.road=needsRoad(it.n);
+    it.shared=groups.filter(g=>g.includes(items.indexOf(it))).length>1;});
+  const tiles=items.reduce((t,i)=>t+i.a*i.b,0);
+  const sep=combos.reduce((t,c)=>t+c.parts.reduce((u,p)=>{const z=size(p);return u+z.w*z.h},0),0);
+  const N=items.length;
+
+  // Option A: one row along a road (every building fronts the road)
+  let row=null;
+  if(N<=8){
+    const H=Math.max(...items.map(i=>i.a)), W=items.reduce((t,i)=>t+i.b,0);
+    for(const order of permutations(N)){
+      const pos=new Array(N); let x=0;
+      order.forEach(i=>{pos[i]={x,y:H-items[i].a,w:items[i].b,h:items[i].a,door:items[i].road?"b":null};x+=items[i].b;});
+      if(groups.every(g=>groupConnected(g,pos))){row={W,H,pos,kind:"row"};break;}
+    }
+  }
+
+  // Option B: smallest rectangle block. Every building must touch the block's edge so a road around it reaches them all.
+  let block=null, timedOut=false;
+  const limitArea=row?row.W*row.H:Infinity;
+  const maxSide=items.reduce((t,i)=>t+i.a,0);
+  const boxes=[];
+  for(let H=1;H<=maxSide;H++)for(let W=H;W<=maxSide;W++){
+    const A=W*H; if(A<tiles||A>=limitArea) continue;
+    if(items.every(i=>i.b<=H&&i.a<=W)) boxes.push({W,H,A});
+  }
+  boxes.sort((p,q)=>p.A-q.A||(p.W-p.H)-(q.W-q.H));
+  const order=[...items.keys()].sort((p,q)=>items[q].a*items[q].b-items[p].a*items[p].b);
+  let steps=0; const BUDGET=400000, T0=Date.now();
+  const groupOf=items.map((_,i)=>groups.filter(g=>g.includes(i)));
+  for(const bx of boxes){
+    const P=new Array(N); const placed=new Set();
+    const ok=(function dfs(k){
+      if(++steps>BUDGET||(steps%2000===0&&Date.now()-T0>1200)){timedOut=true;return false;}
+      if(k===N) return true;
+      const i=order[k], it=items[i];
+      const ors=it.a===it.b?[[it.a,it.b]]:[[it.a,it.b],[it.b,it.a]];
+      for(const [w,h] of ors){
+        if(w>bx.W||h>bx.H) continue;
+        const xm=k===0?Math.floor((bx.W-w)/2):bx.W-w, ym=k===0?Math.floor((bx.H-h)/2):bx.H-h;
+        for(let y=0;y<=ym;y++)for(let x=0;x<=xm;x++){
+          let door=null;
+          if(it.road){
+            const top=y===0,bot=y+h===bx.H,lef=x===0,rig=x+w===bx.W;
+            if(w===h) door=bot?"b":top?"t":lef?"l":rig?"r":null;
+            else if(w<h) door=bot?"b":top?"t":null;   // long side vertical: doors on top/bottom ends
+            else door=lef?"l":rig?"r":null;           // long side horizontal: doors on left/right ends
+            if(!door) continue;
+          }
+          const r={x,y,w,h,door}; let clash=false;
+          for(const j of placed){const s=P[j];if(r.x<s.x+s.w&&s.x<r.x+r.w&&r.y<s.y+s.h&&s.y<r.y+r.h){clash=true;break;}}
+          if(clash) continue;
+          P[i]=r; placed.add(i);
+          let good=true;
+          for(const g of groupOf[i]) if(g.every(j=>placed.has(j))&&!groupConnected(g,P)){good=false;break;}
+          if(good&&dfs(k+1)) return true;
+          placed.delete(i); P[i]=undefined;
+          if(timedOut) return false;
+        }
+      }
+      return false;
+    })(0);
+    if(ok){block={W:bx.W,H:bx.H,pos:P,kind:"block"};break;}
+    if(timedOut) break;
+  }
+  // Fallback when nothing else is found and the combos share no buildings: each combo in its own row, rows separated by a 1-tile road.
+  let stack=null;
+  const disjoint=groups.every((g,i)=>groups.every((h,j)=>i===j||!g.some(x=>h.includes(x))));
+  if(!row&&!block&&disjoint){
+    const pos=new Array(N), roadRows=[]; let y=0, W=0;
+    groups.forEach(g=>{const H=Math.max(...g.map(i=>items[i].a)); let x=0;
+      g.forEach(i=>{pos[i]={x,y:y+H-items[i].a,w:items[i].b,h:items[i].a,door:items[i].road?"b":null};x+=items[i].b;});
+      W=Math.max(W,x); y+=H; roadRows.push(y); y+=1;});
+    stack={W,H:y-1,pos,kind:"stack",roadRows:roadRows.slice(0,-1)};
+  }
+  return {items,groups,tiles,sep,row,block,stack,timedOut};
+}
+
+function drawPlan(p,L){
+  const T=26, pad=10, W=L.W*T, H=L.H*T;
+  const ring=L.kind==="block";
+  const ox=ring?pad+10:pad, oy=ring?pad+10:pad;
+  const tw=W+ox*2, th=H+oy+(ring?pad+10:22);
+  let g="";
+  for(let i=0;i<=L.W;i++) g+=`<line class="pg" x1="${ox+i*T}" y1="${oy}" x2="${ox+i*T}" y2="${oy+H}"/>`;
+  for(let j=0;j<=L.H;j++) g+=`<line class="pg" x1="${ox}" y1="${oy+j*T}" x2="${ox+W}" y2="${oy+j*T}"/>`;
+  let road="";
+  if(ring){road=`<rect class="rd" x="${ox-10}" y="${oy-10}" width="${W+20}" height="${H+20}"/><rect fill="var(--bg)" x="${ox}" y="${oy}" width="${W}" height="${H}"/><rect class="rdl" x="${ox-5}" y="${oy-5}" width="${W+10}" height="${H+10}"/>`;}
+  else{road=`<rect class="rd" x="${ox-pad}" y="${oy+H+2}" width="${W+pad*2}" height="14"/><line class="rdl" x1="${ox-pad}" y1="${oy+H+9}" x2="${ox+W+pad}" y2="${oy+H+9}"/>`;
+    (L.roadRows||[]).forEach(r=>{road+=`<rect class="rd" x="${ox-pad}" y="${oy+r*T}" width="${W+pad*2}" height="${T}"/><line class="rdl" x1="${ox-pad}" y1="${oy+r*T+T/2}" x2="${ox+W+pad}" y2="${oy+r*T+T/2}"/>`;});}
+  const lots=p.items.map((it,i)=>{const r=L.pos[i];const x=ox+r.x*T,y=oy+r.y*T,w=r.w*T,h=r.h*T;const s=Math.min(w,h)>=40?28:18;
+    const d=r.door, dl=Math.min(w,h)*0.4, door=d==="b"?`<rect class="dr" x="${x+w/2-dl/2}" y="${y+h-5}" width="${dl}" height="4"/>`:d==="t"?`<rect class="dr" x="${x+w/2-dl/2}" y="${y+1}" width="${dl}" height="4"/>`:d==="l"?`<rect class="dr" x="${x+1}" y="${y+h/2-dl/2}" width="4" height="${dl}"/>`:d==="r"?`<rect class="dr" x="${x+w-5}" y="${y+h/2-dl/2}" width="4" height="${dl}"/>`:"";
+    return `<rect class="pl${it.shared?" sh":""}${it.est?" e":""}${it.road?"":" deco"}" x="${x+1}" y="${y+1}" width="${w-2}" height="${h-2}"/>${door}
+      <image href="${iconURL(it.n)}" x="${x+w/2-s/2}" y="${y+h/2-s/2-(h>=52?6:0)}" width="${s}" height="${s}" style="image-rendering:pixelated"/>
+      ${h>=52&&w>=52?`<text x="${x+w/2}" y="${y+h/2+s/2+4}" text-anchor="middle">${(()=>{const s=bn(it.n);return esc(s.length>12?s.slice(0,11)+"…":s)})()}</text>`:""}`}).join("");
+  return `<svg width="${tw}" height="${th}" viewBox="0 0 ${tw} ${th}" role="img" aria-label="${esc(UI[lang].layoutAria)}">${road}${g}${lots}</svg>`;
+}
+
+
+
+function renderSheet(){
+  const el=$("sheetin"), t=L();
+  const combos=cart.map(n=>BYNAME[n]).filter(Boolean);
+  let html=`<div class="shead"><h3>${t.planner}</h3><button class="btn" id="closecart">${t.close}</button></div>`;
+  if(!combos.length){el.innerHTML=html+`<div class="empty" style="margin-top:10px">${t.emptyCart(MAXCART)}</div>`;return;}
+  html+=`<div class="clist">${combos.map(c=>`<div class="citem"><span class="icons">${c.parts.map(p=>`<img class="ico xs" src="${iconURL(p)}" alt="${esc(bn(p))}">`).join("")}</span>
+    <span class="cn">${esc(cn(c.n))}${enSub(c.n)}</span><span class="bonus"><span class="lp">${t.land} <b>+${c.lp}%</b></span><span class="pr">${t.price} <b>+${c.pr}%</b></span></span>
+    <button class="btn rm" data-cart="${esc(c.n)}">${t.remove}</button></div>`).join("")}</div>`;
+  if(combos.length<2){el.innerHTML=html+`<div class="empty">${t.addMore}</div>`;return;}
+  const key=JSON.stringify([cart,share,MINE,ROAD_OVR]);
+  if(!renderSheet.memo||renderSheet.memo.key!==key) renderSheet.memo={key,p:plan(combos)};
+  const p=renderSheet.memo.p;
+  const best=p.block||p.row||p.stack;
+  const sharedNames=p.items.filter(i=>i.shared).map(i=>i.n);
+  html+=`<div class="opts"><button class="btn" data-share="1" aria-pressed="${share}">${t.share}</button><button class="btn" data-share="0" aria-pressed="${!share}">${t.sep}</button></div>`;
+  html+=`<div class="stats">
+    <div class="stat"><div class="v">${p.items.length}</div><div class="l">${t.bld}${share&&sharedNames.length?t.shared(sharedNames.length):""}</div></div>
+    <div class="stat"><div class="v">${p.tiles}</div><div class="l">${t.covered}${share&&p.sep>p.tiles?t.saves(p.sep-p.tiles):""}</div></div>
+    <div class="stat"><div class="v">${best?best.W+"×"+best.H:"—"}</div><div class="l">${best?t.smallest(best.W*best.H):t.noLayout}</div></div>
+  </div>`;
+  if(best){
+    html+=`<div class="eyebrow">${best.kind==="block"?t.kBlock:best.kind==="row"?t.kRow:t.kStack}</div>
+      <div class="plan">${drawPlan(p,best)}</div>
+      <div class="legend"><span><i></i>${t.legBld}</span>${sharedNames.length?`<span><i class="sh"></i>${t.legShared}</span>`:""}<span><i class="dr"></i>${t.legDoor}</span><span><i class="deco"></i>${t.legDeco}</span><span>${t.legDash}</span></div>`;
+    const alt=best.kind==="block"?p.row:null;
+    html+=`<p class="why">${best.kind==="block"?t.whyBlock+(alt?t.whyAlt(alt.W,alt.H):""):best.kind==="row"?t.whyRow:t.whyStack}${sharedNames.length?t.sharedNote(sharedNames.map(n=>esc(bn(n))).join(t.listSep),sharedNames.length>1):""}${p.timedOut?t.timedOut:""}</p>`;
+    if(alt){html+=`<details style="margin-top:8px"><summary class="eyebrow" style="cursor:pointer">${t.showRow}</summary><div class="plan" style="margin-top:6px">${drawPlan(p,alt)}</div></details>`;}
+  }else{
+    html+=`<div class="empty">${t.noLayoutMsg(p.tiles)}</div>`;
+  }
+  el.innerHTML=html;
+}
+function setSheet(open){
+  sheetOpen=open; $("sheet").hidden=!open; $("scrim").hidden=!open;
+  document.body.style.overflow=open?"hidden":"";
+  if(open) renderSheet();
+}
+
+function applyStatic(){
+  const t=L();
+  document.documentElement.lang=LOC[lang];
+  document.title=t.title;
+  $("h1").textContent=t.title; $("sub").textContent=t.sub;
+  $("q").placeholder=t.search; $("q").setAttribute("aria-label",t.searchAria);
+  $("allshops").firstChild.textContent=t.allShops+" ";
+  $("note").textContent=t.note;
+  $("credits").innerHTML=t.credits;
+  $("opencart").textContent=t.plan;
+  $("langsw").setAttribute("aria-label",t.lang);
+  document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang));
+  $("sheet").setAttribute("aria-label",t.planner);
+}
+
+function render(){
+  const t=L();
+  let list=COMBOS.filter(c=>selected.length&&selected.every(s=>c.parts.includes(s)));
+  list.forEach(c=>c.sp=space(c));
+  list.sort((a,b)=>sortMode==="lp"?(b.lp-a.lp||b.pr-a.pr):sortMode==="pr"?(b.pr-a.pr||b.lp-a.lp):(a.sp.tiles-b.sp.tiles||a.sp.W-b.sp.W||b.lp-a.lp));
+
+  const hero=$("hero");
+  if(!selected.length){
+    hero.innerHTML=`<div class="hero"><div class="txt"><div class="eyebrow">${t.noSel}</div><div class="ttl">${t.pickBelow}</div><div class="meta">${t.willAppear}</div></div></div>`;
+  }else{
+    const icons=selected.length===1?img(selected[0],"lg"):`<div class="pair">${img(selected[0],"lg")}<span class="amp">+</span>${img(selected[1],"lg")}</div>`;
+    hero.innerHTML=`<div class="hero">${icons}<div class="txt">
+      <div class="eyebrow">${selected.length===1?t.selShop:t.withBoth}</div>
+      <div class="ttl">${selected.map(s=>esc(bn(s))).join(" + ")}</div>
+      ${lang==="en"?"":`<div class="en">${selected.map(esc).join(" + ")}</div>`}
+      <div class="meta">${t.nCombos(list.length)}</div>
+      <div class="sizes">${selected.map(s=>{const z=size(s);return `<label class="szrow"><span>${esc(bn(s))}</span>
+        <select data-size="${esc(s)}" aria-label="${esc(t.sizeOf(bn(s)))}">${SIZE_OPTS.map(o=>`<option value="${o[0]}x${o[1]}"${o[0]===z.w&&o[1]===z.h?" selected":""}>${o[0]}×${o[1]}</option>`).join("")}</select>
+        <span class="tag ${z.src}">${z.src==="wiki"?t.tagWiki:z.src==="mine"?t.tagMine:t.tagEst}</span>
+        <button class="btn rdbtn" data-road="${esc(s)}" aria-pressed="${needsRoad(s)}">${needsRoad(s)?t.roadYes:t.roadNo}</button></label>`}).join("")}</div>
+      <div class="ctl">
+        <button class="btn" data-sort="lp" aria-pressed="${sortMode==="lp"}">${t.sortLand}</button>
+        <button class="btn" data-sort="pr" aria-pressed="${sortMode==="pr"}">${t.sortPrice}</button>
+        <button class="btn" data-sort="sp" aria-pressed="${sortMode==="sp"}">${t.sortSpace}</button>
+        <button class="btn" data-clear="1">${t.clear}</button>
+      </div></div></div>`;
+  }
+
+  const res=$("results");
+  if(!selected.length){res.innerHTML="";}
+  else if(!list.length){res.innerHTML=`<h2>${t.combos}</h2><div class="empty">${t.never}</div>`;}
+  else{
+    const full=cart.length>=MAXCART;
+    res.innerHTML=`<h2>${t.combos} <small>${t.tapPartner}</small></h2><div class="combos">${list.map(c=>{const inc=cart.includes(c.n);return `
+      <div class="block${inc?" incart":""}">
+        <div class="head"><span class="name">${esc(cn(c.n))}${enSub(c.n)}</span>
+          <span class="bonus"><span class="lp">${t.land} <b>+${c.lp}%</b></span><span class="pr">${t.price} <b>+${c.pr}%</b></span></span></div>
+        <div class="lots">${c.parts.map(p=>selected.includes(p)
+          ?`<div class="lotbtn me">${img(p)}<span>${esc(bn(p))}</span></div>`
+          :`<button class="lotbtn" data-s="${esc(p)}">${img(p)}<span>${esc(bn(p))}</span></button>`).join("")}</div>
+        <div class="road"></div>
+        <div class="space">${footprint(c.sp)}<div class="sptxt"><b>${t.tiles(c.sp.tiles)}</b>${c.sp.est?` <span class="tag est">${t.estimate}</span>`:""}
+          <span>${t.rowAlong(c.sp.W,c.sp.H)}</span>
+          <span class="dims">${c.sp.L.map(l=>`${l.w}×${l.h}`).join(" + ")}</span></div>
+          <button class="cartbtn" data-cart="${esc(c.n)}" aria-pressed="${inc}"${!inc&&full?` disabled title="${esc(t.cartFull)}"`:""}>${inc?t.inCart:t.addCart}</button></div>
+      </div>`}).join("")}</div>`;
+  }
+
+  const q=$("q").value.trim().toLowerCase();
+  const shown=SHOPS.filter(s=>!q||s.toLowerCase().includes(q)||["ja","zh","zhs","ko"].some(k=>NAMES[k].b[s]?.includes(q)))
+    .sort((a,b)=>bn(a).localeCompare(bn(b),LOC[lang]));
+  $("shopcount").textContent=t.ofN(shown.length,SHOPS.length);
+  $("grid").innerHTML=shown.map(s=>{const z=size(s);return `<button class="tile${selected.includes(s)?" on":""}" data-s="${esc(s)}" aria-pressed="${selected.includes(s)}" title="${esc(s)}">
+    <span class="n">${count[s]}</span><span class="z${z.src==="est"?" e":""}">${z.w}×${z.h}</span>${img(s,"sm")}<span class="nm">${esc(bn(s))}</span></button>`}).join("")||`<div class="empty">${t.noMatch}</div>`;
+
+  $("cartct").innerHTML=cart.length?`${t.cartN(cart.length)}<small>${cart.map(n=>esc(cn(n))).join(" · ")}</small>`:`${t.cartEmpty}<small>${t.cartHint}</small>`;
+  $("opencart").disabled=!cart.length;
+  if(sheetOpen) renderSheet();
+}
+
+document.addEventListener("click",e=>{
+  const rb=e.target.closest("[data-road]"); if(rb){e.preventDefault();const n=rb.dataset.road;const v=!needsRoad(n);if(v===!NO_ROAD.has(n)) delete ROAD_OVR[n]; else ROAD_OVR[n]=v;try{localStorage.setItem("dts-road",JSON.stringify(ROAD_OVR))}catch(err){}render();return;}
+  const lb=e.target.closest("[data-lang]"); if(lb){setLang(lb.dataset.lang);return;}
+  if(e.target.closest("#opencart")){setSheet(true);return;}
+  if(e.target.closest("#closecart")||e.target.id==="scrim"){setSheet(false);return;}
+  const sh=e.target.closest("[data-share]"); if(sh){share=sh.dataset.share==="1";save();renderSheet();return;}
+  const cb=e.target.closest("[data-cart]"); if(cb){toggleCart(cb.dataset.cart);return;}
+  const so=e.target.closest("[data-sort]"); if(so){sortMode=so.dataset.sort;render();return;}
+  if(e.target.closest("[data-clear]")){setSel([]);return;}
+  const b=e.target.closest("[data-s]"); if(b) pick(b.dataset.s);
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheetOpen) setSheet(false);});
+document.addEventListener("change",e=>{
+  const s=e.target.closest("[data-size]"); if(!s) return;
+  const [w,h]=s.value.split("x").map(Number), name=s.dataset.size;
+  const base=VERIFIED[name]||ESTIMATED[name]||[2,2];
+  if(w===base[0]&&h===base[1]) delete MINE[name]; else MINE[name]=[w,h];
+  try{localStorage.setItem("dts-size",JSON.stringify(MINE))}catch(err){}
+  render();
+});
+$("q").addEventListener("input",render);
+$("q").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){const q=e.target.value.trim().toLowerCase();if(!q)return;
+    const m=SHOPS.find(s=>s.toLowerCase()===q||bn(s).toLowerCase()===q)||SHOPS.find(s=>s.toLowerCase().includes(q)||bn(s).toLowerCase().includes(q));
+    if(m){e.target.value="";pick(m);}}
+});
+try{
+  const s=JSON.parse(localStorage.getItem("dts-sel")||"null");if(Array.isArray(s))selected=s.filter(x=>count[x]).slice(0,2);
+  const c=JSON.parse(localStorage.getItem("dts-cart")||"null");if(Array.isArray(c))cart=c.filter(x=>BYNAME[x]).slice(0,MAXCART);
+  share=localStorage.getItem("dts-share")!=="0";
+}catch(e){}
+if(!selected.length) selected=["Cakery"];
+if(!cart.length) cart=["Sweets","Fresh-Made"];
+applyStatic();
+render();
+
+</script>
+
+</body>
+</html>
