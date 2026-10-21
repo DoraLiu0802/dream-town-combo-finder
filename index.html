@@ -148,6 +148,14 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--coin);outline-
 .legend i{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:4px;border:1.5px solid var(--ink);background:color-mix(in srgb,var(--grass) 30%,var(--lot))}
 .legend i.sh{background:var(--sel);border-color:var(--coin)}
 .why{font-size:.82rem;color:var(--muted);margin:6px 0 0;max-width:65ch}
+.opts.lay{margin:8px 0 6px}
+.saverow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.savebtn{font-weight:700;border:2px solid var(--ink);background:var(--lot);color:var(--ink);text-decoration:none;display:inline-block}
+.savemsg{font-size:.8rem;color:var(--muted)}
+.imgbox{position:fixed;top:0;right:0;bottom:0;left:0;z-index:40;background:var(--bg);overflow:auto;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.imgbox .in{max-width:760px;margin:0 auto}
+.layimg{display:block;max-width:100%;height:auto;margin:10px 0;border:2px solid var(--line);border-radius:3px;background:#e7efdc}
+.imgact{display:flex;gap:8px;flex-wrap:wrap}
 
 .en{display:block;font-family:var(--body);font-size:.7rem;font-weight:400;color:var(--muted);letter-spacing:.02em;line-height:1.2}
 .hero .en{font-size:.78rem;margin-top:2px}
@@ -206,11 +214,12 @@ html:not(.js) body{padding-bottom:32px}
 #nojs i+i::before{content:" · ";color:var(--muted)}
 #nojs b.ic{font-weight:400}
 .sv-langs{display:none;flex-wrap:wrap;border:2px solid var(--ink);border-radius:3px;overflow:hidden;width:max-content;max-width:100%;margin-bottom:10px}
-.sv-langs input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
-.sv-langs label{font-size:.85rem;padding:6px 11px;background:var(--lot);color:var(--ink);cursor:pointer}
-.sv-langs label+input+label{border-left:2px solid var(--ink)}
-.sv-langs input:checked+label{background:var(--ink);color:var(--bg)}
-.sv-langs input:focus-visible+label{outline:3px solid var(--coin);outline-offset:-3px}
+.sv-lw{position:relative;display:flex}
+.sv-langs input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+.sv-lw span{display:block;font-size:.85rem;padding:6px 11px;background:var(--lot);color:var(--ink)}
+.sv-lw+.sv-lw span{border-left:2px solid var(--ink)}
+.sv-lw input:checked+span{background:var(--ink);color:var(--bg)}
+.sv-lw input:focus-visible+span{outline:3px solid var(--coin);outline-offset:-3px}
 .sv-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--bg);display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:3px solid var(--line);margin-bottom:10px}
 .sv-topl{flex:none;font-weight:700;color:var(--ink);text-decoration:none;background:var(--lot);border:2px solid var(--ink);border-radius:3px;padding:3px 9px;font-size:.85rem}
 #nojs .ub{display:none}
@@ -260,7 +269,8 @@ html:not(.js) #sub{display:none}
 .sv-sp{font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .sv-credits a{color:inherit;text-decoration:underline}
 .sv-full{background:var(--lot);border:2px solid var(--grass);border-radius:3px;padding:10px 12px;margin:10px 0;font-size:.85rem}
-.sv-full p{margin:6px 0 0;color:var(--muted)}
+.sv-full p{margin:0;color:var(--ink)}
+.sv-full p+p{margin-top:6px}
 .sv-fullbtn{display:inline-block;background:var(--grass);color:var(--grass-ink);font-weight:700;text-decoration:none;border-radius:3px;padding:8px 14px;font-size:.95rem}
 #nojs .sv-fullbtn .u{color:inherit}
 .sv-url{font-family:ui-monospace,monospace;font-size:.8rem;color:var(--ink)!important;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
@@ -374,31 +384,28 @@ html:not(.js) #sub{display:none}
 <header>
   <div class="toprow">
     <h1 id="h1">專賣街 Combo Finder</h1>
-    <div class="langsw js-only" id="langsw" role="group" aria-label="Language">
-      <button data-lang="en" lang="en">EN</button><button data-lang="ja" lang="ja">日本語</button><button data-lang="zh" lang="zh-Hant">繁中</button><button data-lang="zhs" lang="zh-Hans">简中</button><button data-lang="ko" lang="ko">한국어</button>
-    </div>
+    <div class="langsw js-only" id="langsw" role="group" aria-label="Language"></div>
   </div>
   <p id="sub">Dream Town Story · tap a shop to see every combo it belongs to.</p>
   <p class="fullv-row js-only" id="fullvrow"><a id="fullv" href="https://doraliu0802.github.io/dream-town-combo-finder/" target="_blank" rel="noopener">🌐 Latest version online</a></p>
 </header>
 
 <div class="bar js-only">
-  <input id="q" type="search" autocomplete="off">
 </div>
 
 <div id="hero"></div>
 <section id="results"></section>
 <section id="nojs" aria-labelledby="sv-title">
 <div class="sv-langs" role="radiogroup" aria-label="Language">
-<input type="radio" name="sv-lang" id="sl-en" value="en" checked><label for="sl-en" lang="en">EN</label>
-<input type="radio" name="sv-lang" id="sl-ja" value="ja"><label for="sl-ja" lang="ja">日本語</label>
-<input type="radio" name="sv-lang" id="sl-zh" value="zh"><label for="sl-zh" lang="zh-Hant">繁中</label>
-<input type="radio" name="sv-lang" id="sl-zhs" value="zhs"><label for="sl-zhs" lang="zh-Hans">简中</label>
-<input type="radio" name="sv-lang" id="sl-ko" value="ko"><label for="sl-ko" lang="ko">한국어</label>
+<label class="sv-lw" lang="en"><input type="radio" name="sv-lang" id="sl-en" value="en" checked><span>EN</span></label>
+<label class="sv-lw" lang="ja"><input type="radio" name="sv-lang" id="sl-ja" value="ja"><span>日本語</span></label>
+<label class="sv-lw" lang="zh-Hant"><input type="radio" name="sv-lang" id="sl-zh" value="zh"><span>繁中</span></label>
+<label class="sv-lw" lang="zh-Hans"><input type="radio" name="sv-lang" id="sl-zhs" value="zhs"><span>简中</span></label>
+<label class="sv-lw" lang="ko"><input type="radio" name="sv-lang" id="sl-ko" value="ko"><span>한국어</span></label>
 </div>
 <h2 id="sv-title"><span class="u u-en" lang="en">Simple view</span><span class="u u-ja" lang="ja">シンプル表示</span><span class="u u-zh" lang="zh-Hant">簡易版</span><span class="u u-zhs" lang="zh-Hans">简易版</span><span class="u u-ko" lang="ko">간단 보기</span></h2>
 <p class="nojs-msg"><span class="u u-en" lang="en">Scripts aren&#x27;t running in this viewer, so search and the space planner are off. Find a shop in the index to see its combos, then tap a partner shop to jump to it. For the full tool, open the file in Chrome or Safari.</span><span class="u u-ja" lang="ja">このビューではスクリプトが動かないため、検索と広さプランナーは使えません。目次から店を選ぶとコンボが見られ、相手の店をタップするとその店へ移動します。すべての機能を使うには、ChromeやSafariで開いてください。</span><span class="u u-zh" lang="zh-Hant">此檢視器沒有執行頁面的程式，所以搜尋及空間規劃無法使用。在目錄中選擇店舖可查看其組合，點選組合中的其他店舖可跳到該店。如需完整功能，請用 Chrome 或 Safari 開啟。</span><span class="u u-zhs" lang="zh-Hans">此查看器没有运行页面的脚本，所以搜索和空间规划无法使用。在目录中选择店铺可查看其组合，点击组合中的其他店铺可跳到该店。如需完整功能，请用 Chrome 或 Safari 打开。</span><span class="u u-ko" lang="ko">이 뷰어에서는 스크립트가 실행되지 않아 검색과 공간 플래너를 쓸 수 없습니다. 목차에서 가게를 고르면 콤보가 보이고, 콤보 속 다른 가게를 누르면 그 가게로 이동합니다. 모든 기능은 Chrome이나 Safari에서 열어 쓰세요.</span></p>
-<div class="sv-full"><a class="sv-fullbtn" href="https://doraliu0802.github.io/dream-town-combo-finder/">🌐 <span class="u u-en" lang="en">Open the full version online</span><span class="u u-ja" lang="ja">オンラインの完全版を開く</span><span class="u u-zh" lang="zh-Hant">開啟線上完整版</span><span class="u u-zhs" lang="zh-Hans">打开在线完整版</span><span class="u u-ko" lang="ko">온라인 전체 버전 열기</span></a><p><span class="u u-en" lang="en">If the button does nothing in this app, copy this address into your browser:</span><span class="u u-ja" lang="ja">このアプリでボタンが開かない場合は、このアドレスをブラウザに貼り付けてください：</span><span class="u u-zh" lang="zh-Hant">如果在這個應用程式中按鈕沒有反應，請把這個網址複製到瀏覽器：</span><span class="u u-zhs" lang="zh-Hans">如果在这个应用中按钮没有反应，请把这个网址复制到浏览器：</span><span class="u u-ko" lang="ko">이 앱에서 버튼이 열리지 않으면 이 주소를 브라우저에 붙여 넣으세요:</span></p><p class="sv-url"><a href="https://doraliu0802.github.io/dream-town-combo-finder/">https://doraliu0802.github.io/dream-town-combo-finder/</a></p></div>
+<div class="sv-full"><p>🌐 <span class="u u-en" lang="en">For the full version with search and the space planner, copy this address into your browser:</span><span class="u u-ja" lang="ja">検索や広さプランナーが使える完全版は、このアドレスをブラウザに貼り付けて開いてください：</span><span class="u u-zh" lang="zh-Hant">如需有搜尋及空間規劃的完整版，請把這個網址複製到瀏覽器開啟：</span><span class="u u-zhs" lang="zh-Hans">如需有搜索和空间规划的完整版，请把这个网址复制到浏览器打开：</span><span class="u u-ko" lang="ko">검색과 공간 플래너가 있는 전체 버전은 이 주소를 브라우저에 붙여 넣어 여세요:</span></p><p class="sv-url">https://doraliu0802.github.io/dream-town-combo-finder/</p></div>
 <nav class="sv-bar" aria-label="Jump">
 <a class="sv-topl" href="#sv-index"><span class="u u-en" lang="en">↑ Index</span><span class="u u-ja" lang="ja">↑ 目次</span><span class="u u-zh" lang="zh-Hant">↑ 目錄</span><span class="u u-zhs" lang="zh-Hans">↑ 目录</span><span class="u u-ko" lang="ko">↑ 목차</span></a>
 <span class="sv-letters ub ub-en" lang="en"><a href="#sv-en-num">#</a><a href="#sv-en-A">A</a><a href="#sv-en-B">B</a><a href="#sv-en-C">C</a><a href="#sv-en-D">D</a><a href="#sv-en-E">E</a><a href="#sv-en-F">F</a><a href="#sv-en-G">G</a><a href="#sv-en-H">H</a><a href="#sv-en-I">I</a><a href="#sv-en-J">J</a><a href="#sv-en-K">K</a><a href="#sv-en-L">L</a><a href="#sv-en-M">M</a><a href="#sv-en-O">O</a><a href="#sv-en-P">P</a><a href="#sv-en-R">R</a><a href="#sv-en-S">S</a><a href="#sv-en-T">T</a><a href="#sv-en-U">U</a><a href="#sv-en-V">V</a><a href="#sv-en-W">W</a><a href="#sv-en-Z">Z</a></span>
@@ -1531,7 +1538,7 @@ html:not(.js) #sub{display:none}
 <ul class="sv-combos">
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Big Bucks</i><i class=j>大金</i><i class=t>發財街</i><i class=s>发财街</i><i class=k>큰돈</i></b><span class="sv-bon"><span class="lp L-land"><b>+190%</b></span> <span class="pr L-price"><b>+65%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-kairo-statue"><b class=ic>🤖</b><i class=e>Kairo Statue</i><i class=j>カイロ像</i><i class=t>開羅像</i><i class=s>开罗像</i><i class=k>카이로 동상</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-office-tower"><b class=ic>🏙️</b><i class=e>Office Tower</i><i class=j>高層オフィス</i><i class=t>高層辦公樓</i><i class=s>高层办公楼</i><i class=k>오피스 타워</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></span></div><div class="sv-sp">≈ <span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Weekend</i><i class=j>週末贅沢街</i><i class=t>週末奢侈街</i><i class=s>周末奢侈街</i><i class=k>주말</i></b><span class="sv-bon"><span class="lp L-land"><b>+165%</b></span> <span class="pr L-price"><b>+25%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-sushi-joint"><b class=ic>🍣</b><i class=e>Sushi Joint</i><i class=j>すし屋</i><i class=t>壽司店</i><i class=s>寿司店</i><i class=k>초밥집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-pizzeria"><b class=ic>🍕</b><i class=e>Pizzeria</i><i class=j>ピザ屋</i><i class=t>披薩店</i><i class=s>披萨店</i><i class=k>피자 가게</i></a></div><div class="sv-sp"><span class="L-tiles">12</span> · <span class="L-row">6×2</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Outdoor</i><i class=j>アウトドア街</i><i class=t>戶外街</i><i class=s>户外街</i><i class=k>아웃도어</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+55%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-camp-site"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Outdoor</i><i class=j>アウトドア街</i><i class=t>戶外街</i><i class=s>户外街</i><i class=k>아웃도어</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+55%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-camp-site"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
 </ul></article>
 <article class="sv-shop ord" style="--oj:61;--ot:59;--os:59;--ok:129" id="s-cafe">
 <div class="sv-head"><b class=ic>☕</b><div class="sv-ht"><div class="sv-hn"><i class=e>Cafe</i><i class=j>コーヒーショップ</i><i class=t>咖啡店</i><i class=s>咖啡店</i><i class=k>카페</i></div><div class="sv-meta">2×2 · <span class="L-road"></span> · <span class="L-combos">4</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
@@ -1597,7 +1604,7 @@ html:not(.js) #sub{display:none}
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Fishy</i><i class=j>ピチピチ街</i><i class=t>朝氣街</i><i class=s>朝气街</i><i class=k>생선 가득</i></b><span class="sv-bon"><span class="lp L-land"><b>+110%</b></span> <span class="pr L-price"><b>+25%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-fishing-pond"><b class=ic>🎣</b><i class=e>Fishing Pond</i><i class=j>つり堀</i><i class=t>釣魚池</i><i class=s>钓鱼池</i><i class=k>낚시터</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-aquarium"><b class=ic>🐠</b><i class=e>Aquarium</i><i class=j>水族館</i><i class=t>水族館</i><i class=s>水族馆</i><i class=k>수족관</i></a></div><div class="sv-sp"><span class="L-tiles">48</span> · <span class="L-row">10×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Picturesque</i><i class=j>わびさび旅館</i><i class=t>幽雅旅館</i><i class=s>幽雅旅馆</i><i class=k>절경</i></b><span class="sv-bon"><span class="lp L-land"><b>+110%</b></span> <span class="pr L-price"><b>+25%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-boulder"><b class=ic>🪨</b><i class=e>Boulder</i><i class=j>岩</i><i class=t>岩石</i><i class=s>岩石</i><i class=k>바위</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-spa-hotel"><b class=ic>🛁</b><i class=e>Spa Hotel</i><i class=j>温泉旅館</i><i class=t>溫泉旅館</i><i class=s>温泉旅馆</i><i class=k>온천 여관</i></a></div><div class="sv-sp"><span class="L-tiles">21</span> · <span class="L-row">7×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Groceries</i><i class=j>商売競争街</i><i class=t>生意競爭街</i><i class=s>生意竞争街</i><i class=k>식료품</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-supermarket"><b class=ic>🛒</b><i class=e>Supermarket</i><i class=j>スーパーマーケット</i><i class=t>超市</i><i class=s>超市</i><i class=k>슈퍼마켓</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-greengrocer"><b class=ic>🥬</b><i class=e>Greengrocer</i><i class=j>八百屋</i><i class=t>蔬菜店</i><i class=s>蔬菜店</i><i class=k>채소 가게</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></span></div><div class="sv-sp"><span class="L-tiles">12</span> · <span class="L-row">6×2</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside</i><i class=j>海の街</i><i class=t>海洋街</i><i class=s>海洋街</i><i class=k>바닷가</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-wharf"><b class=ic>⚓</b><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></span></div><div class="sv-sp"><span class="L-tiles">16</span> · <span class="L-row">6×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside</i><i class=j>海の街</i><i class=t>海洋街</i><i class=s>海洋街</i><i class=k>바닷가</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-wharf"><b class=ic>⚓</b><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></span></div><div class="sv-sp"><span class="L-tiles">20</span> · <span class="L-row">6×4</span></div></li>
 </ul></article>
 <article class="sv-shop ord" style="--oj:138;--ot:99;--os:98;--ok:117" id="s-greengrocer">
 <div class="sv-head"><b class=ic>🥬</b><div class="sv-ht"><div class="sv-hn"><i class=e>Greengrocer</i><i class=j>八百屋</i><i class=t>蔬菜店</i><i class=s>蔬菜店</i><i class=k>채소 가게</i></div><div class="sv-meta">2×2 · <span class="L-road"></span> · <span class="L-combos">4</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
@@ -1659,7 +1666,7 @@ html:not(.js) #sub{display:none}
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Corporate</i><i class=j>接待街</i><i class=t>接待街</i><i class=s>接待街</i><i class=k>기업</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-golf-course"><b class=ic>⛳</b><i class=e>Golf Course</i><i class=j>ゴルフコース場</i><i class=t>高爾夫球場</i><i class=s>高尔夫球场</i><i class=k>골프장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-kairodad-statue"><b class=ic>👨</b><i class=e>Kairodad Statue</i><i class=j>カイロ親父像</i><i class=t>開羅老爺像</i><i class=s>开罗老爷像</i><i class=k>카이로 아빠 동상</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span></div><div class="sv-sp"><span class="L-tiles">41</span> · <span class="L-row">9×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Night Out</i><i class=j>飲み会街</i><i class=t>酒會街</i><i class=s>酒会街</i><i class=k>밤 외출</i></b><span class="sv-bon"><span class="lp L-land"><b>+185%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-dance-club"><b class=ic>🪩</b><i class=e>Dance Club</i><i class=j>クラブ</i><i class=t>俱樂部</i><i class=s>俱乐部</i><i class=k>클럽</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-drugstore"><b class=ic>💊</b><i class=e>Drugstore</i><i class=j>薬局</i><i class=t>藥局</i><i class=s>药局</i><i class=k>약국</i></a></div><div class="sv-sp"><span class="L-tiles">12</span> · <span class="L-row">6×2</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Grown-Up</i><i class=j>大人の街</i><i class=t>成人街</i><i class=s>成人街</i><i class=k>어른</i></b><span class="sv-bon"><span class="lp L-land"><b>+150%</b></span> <span class="pr L-price"><b>+60%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-dance-club"><b class=ic>🪩</b><i class=e>Dance Club</i><i class=j>クラブ</i><i class=t>俱樂部</i><i class=s>俱乐部</i><i class=k>클럽</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-casino"><b class=ic>🎰</b><i class=e>Casino</i><i class=j>カジノ</i><i class=t>賭場</i><i class=s>赌场</i><i class=k>카지노</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span></div><div class="sv-sp"><span class="L-tiles">12</span> · <span class="L-row">6×2</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside Tour</i><i class=j>海飲み観光地街</i><i class=t>海飲觀光地</i><i class=s>海饮观光地</i><i class=k>바닷가 여행</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-castle"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></a></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside Tour</i><i class=j>海飲み観光地街</i><i class=t>海飲觀光地</i><i class=s>海饮观光地</i><i class=k>바닷가 여행</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-castle"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></a></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Office Clerk</i><i class=j>飲み歩き街</i><i class=t>酒館街</i><i class=s>酒馆街</i><i class=k>회사원</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+55%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-shoe-shop"><b class=ic>👟</b><i class=e>Shoe Shop</i><i class=j>靴屋</i><i class=t>鞋店</i><i class=s>鞋店</i><i class=k>신발 가게</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-office-bldg"><b class=ic>💼</b><i class=e>Office Bldg</i><i class=j>オフィス</i><i class=t>辦公室</i><i class=s>办公室</i><i class=k>사무실 빌딩</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span></div><div class="sv-sp"><span class="L-tiles">12</span> · <span class="L-row">6×2</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Gourmet</i><i class=j>グルメ街</i><i class=t>吃貨街</i><i class=s>吃货街</i><i class=k>미식</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-sushi-joint"><b class=ic>🍣</b><i class=e>Sushi Joint</i><i class=j>すし屋</i><i class=t>壽司店</i><i class=s>寿司店</i><i class=k>초밥집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-ramen-bar"><b class=ic>🍜</b><i class=e>Ramen Bar</i><i class=j>ラーメン屋</i><i class=t>拉麵店</i><i class=s>拉面店</i><i class=k>라멘 가게</i></a></div><div class="sv-sp"><span class="L-tiles">12</span> · <span class="L-row">6×2</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Money Drain</i><i class=j>当たりくじ街</i><i class=t>中獎街</i><i class=s>中奖街</i><i class=k>돈 낭비</i></b><span class="sv-bon"><span class="lp L-land"><b>+110%</b></span> <span class="pr L-price"><b>+25%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-lotto-ticket-shop"><b class=ic>🎟️</b><i class=e>Lotto Ticket Shop</i><i class=j>宝くじ屋</i><i class=t>彩票店</i><i class=s>彩票店</i><i class=k>복권 판매점</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-sushi-joint"><b class=ic>🍣</b><i class=e>Sushi Joint</i><i class=j>すし屋</i><i class=t>壽司店</i><i class=s>寿司店</i><i class=k>초밥집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></span></div><div class="sv-sp"><span class="L-tiles">9</span> · <span class="L-row">5×2</span></div></li>
@@ -2069,13 +2076,13 @@ html:not(.js) #sub{display:none}
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Hot Events</i><i class=j>熱い会場</i><i class=t>熱情會場</i><i class=s>热情会场</i><i class=k>뜨거운 이벤트</i></b><span class="sv-bon"><span class="lp L-land"><b>+150%</b></span> <span class="pr L-price"><b>+60%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-concert-hall"><b class=ic>🎻</b><i class=e>Concert Hall</i><i class=j>ライブ会場</i><i class=t>演唱會場</i><i class=s>演唱会场</i><i class=k>콘서트홀</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-parking-lot"><b class=ic>🅿️</b><i class=e>Parking Lot</i><i class=j>駐車場</i><i class=t>停車場</i><i class=s>停车场</i><i class=k>주차장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⚾</b><i class=e>Baseball Park</i><i class=j>野球場</i><i class=t>棒球場</i><i class=s>棒球场</i><i class=k>야구장</i></span></div><div class="sv-sp"><span class="L-tiles">56</span> · <span class="L-row">12×6</span></div></li>
 </ul></article>
 <article class="sv-shop ord" style="--oj:10;--ot:46;--os:46;--ok:143" id="s-beach-house">
-<div class="sv-head"><b class=ic>🏖️</b><div class="sv-ht"><div class="sv-hn"><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></div><div class="sv-meta">2×2 · <span class="L-road"></span> · <span class="L-combos">5</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
+<div class="sv-head"><b class=ic>🏖️</b><div class="sv-ht"><div class="sv-hn"><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></div><div class="sv-meta">4×2 · <span class="L-road"></span> · <span class="L-combos">5</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
 <ul class="sv-combos">
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Fun Special</i><i class=j>金トロフィ街 遊</i><i class=t>金獎盃街 遊</i><i class=s>金奖杯街 游</i><i class=k>놀이 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-gold-trophy"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-theme-park"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></a></div><div class="sv-sp"><span class="L-tiles">41</span> · <span class="L-row">9×6</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Swimming</i><i class=j>スイミング街</i><i class=t>戲水街</i><i class=s>戏水街</i><i class=k>수영</i></b><span class="sv-bon"><span class="lp L-land"><b>+185%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-outdoor-pool"><b class=ic>🛟</b><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-heated-pool"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></a></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside Tour</i><i class=j>海飲み観光地街</i><i class=t>海飲觀光地</i><i class=s>海饮观光地</i><i class=k>바닷가 여행</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-tapas-bar"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-castle"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></a></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Outdoor</i><i class=j>アウトドア街</i><i class=t>戶外街</i><i class=s>户外街</i><i class=k>아웃도어</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+55%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-bbq-house"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-camp-site"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside</i><i class=j>海の街</i><i class=t>海洋街</i><i class=s>海洋街</i><i class=k>바닷가</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-wharf"><b class=ic>⚓</b><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-fishmonger"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></a></div><div class="sv-sp"><span class="L-tiles">16</span> · <span class="L-row">6×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Fun Special</i><i class=j>金トロフィ街 遊</i><i class=t>金獎盃街 遊</i><i class=s>金奖杯街 游</i><i class=k>놀이 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-gold-trophy"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-theme-park"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></a></div><div class="sv-sp"><span class="L-tiles">45</span> · <span class="L-row">9×6</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Swimming</i><i class=j>スイミング街</i><i class=t>戲水街</i><i class=s>戏水街</i><i class=k>수영</i></b><span class="sv-bon"><span class="lp L-land"><b>+185%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-outdoor-pool"><b class=ic>🛟</b><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-heated-pool"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></a></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside Tour</i><i class=j>海飲み観光地街</i><i class=t>海飲觀光地</i><i class=s>海饮观光地</i><i class=k>바닷가 여행</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-tapas-bar"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-castle"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></a></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Outdoor</i><i class=j>アウトドア街</i><i class=t>戶外街</i><i class=s>户外街</i><i class=k>아웃도어</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+55%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-bbq-house"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-camp-site"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside</i><i class=j>海の街</i><i class=t>海洋街</i><i class=s>海洋街</i><i class=k>바닷가</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-wharf"><b class=ic>⚓</b><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-fishmonger"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></a></div><div class="sv-sp"><span class="L-tiles">20</span> · <span class="L-row">6×4</span></div></li>
 </ul></article>
 <article class="sv-shop ord" style="--oj:135;--ot:5;--os:5;--ok:48" id="s-bowling-alley">
 <div class="sv-head"><b class=ic>🎳</b><div class="sv-ht"><div class="sv-hn"><i class=e>Bowling Alley</i><i class=j>ボーリング場</i><i class=t>保齡球館</i><i class=s>保龄球馆</i><i class=k>볼링장</i></div><div class="sv-meta">2×2 · <span class="L-road"></span> · <span class="L-combos">4</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
@@ -2091,7 +2098,7 @@ html:not(.js) #sub{display:none}
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Outdoor Fam</i><i class=j>アウトドアファミリー</i><i class=t>戶外家庭</i><i class=s>户外家庭</i><i class=k>아웃도어 가족</i></b><span class="sv-bon"><span class="lp L-land"><b>+165%</b></span> <span class="pr L-price"><b>+25%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-mountain"><b class=ic>⛰️</b><i class=e>Mountain</i><i class=j>山</i><i class=t>山</i><i class=s>山</i><i class=k>산</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-parking-lot"><b class=ic>🅿️</b><i class=e>Parking Lot</i><i class=j>駐車場</i><i class=t>停車場</i><i class=s>停车场</i><i class=k>주차장</i></a></div><div class="sv-sp"><span class="L-tiles">56</span> · <span class="L-row">12×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Hill</i><i class=j>丘</i><i class=t>高原街</i><i class=s>高原街</i><i class=k>언덕</i></b><span class="sv-bon"><span class="lp L-land"><b>+150%</b></span> <span class="pr L-price"><b>+60%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-fountain-plaza"><b class=ic>💦</b><i class=e>Fountain Plaza</i><i class=j>噴水広場</i><i class=t>噴泉廣場</i><i class=s>喷泉广场</i><i class=k>분수 광장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-spa-hotel"><b class=ic>🛁</b><i class=e>Spa Hotel</i><i class=j>温泉旅館</i><i class=t>溫泉旅館</i><i class=s>温泉旅馆</i><i class=k>온천 여관</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></span></div><div class="sv-sp"><span class="L-tiles">68</span> · <span class="L-row">14×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Bodyguard</i><i class=j>警備隊</i><i class=t>警備隊</i><i class=s>警备队</i><i class=k>보디가드</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-security-inc"><b class=ic>🛡️</b><i class=e>Security Inc.</i><i class=j>警備会社</i><i class=t>警備公司</i><i class=s>警备公司</i><i class=k>경비 회사</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-gym"><b class=ic>🏋️</b><i class=e>Gym</i><i class=j>スポーツジム</i><i class=t>體育館</i><i class=s>体育馆</i><i class=k>헬스장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></span></div><div class="sv-sp"><span class="L-tiles">36</span> · <span class="L-row">10×4</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Outdoor</i><i class=j>アウトドア街</i><i class=t>戶外街</i><i class=s>户外街</i><i class=k>아웃도어</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+55%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-bbq-house"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Outdoor</i><i class=j>アウトドア街</i><i class=t>戶外街</i><i class=s>户外街</i><i class=k>아웃도어</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+55%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-bbq-house"><b class=ic>🍖</b><i class=e>BBQ House</i><i class=j>焼肉屋</i><i class=t>烤肉店</i><i class=s>烤肉店</i><i class=k>고깃집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Nature</i><i class=j>自然街</i><i class=t>自然街</i><i class=s>自然街</i><i class=k>자연</i></b><span class="sv-bon"><span class="lp L-land"><b>+105%</b></span> <span class="pr L-price"><b>+50%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-ranch"><b class=ic>🐄</b><i class=e>Ranch</i><i class=j>牧場</i><i class=t>牧場</i><i class=s>牧场</i><i class=k>목장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-park"><b class=ic>🌳</b><i class=e>Park</i><i class=j>公園</i><i class=t>公園</i><i class=s>公园</i><i class=k>공원</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⛺</b><i class=e>Camp Site</i><i class=j>キャンプ場</i><i class=t>野營地</i><i class=s>野营地</i><i class=k>캠핑장</i></span></div><div class="sv-sp"><span class="L-tiles">56</span> · <span class="L-row">12×6</span></div></li>
 </ul></article>
 <article class="sv-shop ord" style="--oj:28;--ot:32;--os:32;--ok:128" id="s-casino">
@@ -2176,7 +2183,7 @@ html:not(.js) #sub{display:none}
 <article class="sv-shop ord" style="--oj:20;--ot:115;--os:114;--ok:97" id="s-heated-pool">
 <div class="sv-head"><b class=ic>🏊</b><div class="sv-ht"><div class="sv-hn"><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></div><div class="sv-meta">2×2 · <span class="L-road"></span> · <span class="L-combos">4</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
 <ul class="sv-combos">
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Swimming</i><i class=j>スイミング街</i><i class=t>戲水街</i><i class=s>戏水街</i><i class=k>수영</i></b><span class="sv-bon"><span class="lp L-land"><b>+185%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-outdoor-pool"><b class=ic>🛟</b><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></span></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Swimming</i><i class=j>スイミング街</i><i class=t>戲水街</i><i class=s>戏水街</i><i class=k>수영</i></b><span class="sv-bon"><span class="lp L-land"><b>+185%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-outdoor-pool"><b class=ic>🛟</b><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></span></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Fitness</i><i class=j>トレーニング街</i><i class=t>訓練街</i><i class=s>训练街</i><i class=k>피트니스</i></b><span class="sv-bon"><span class="lp L-land"><b>+165%</b></span> <span class="pr L-price"><b>+25%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-gym"><b class=ic>🏋️</b><i class=e>Gym</i><i class=j>スポーツジム</i><i class=t>體育館</i><i class=s>体育馆</i><i class=k>헬스장</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-drugstore"><b class=ic>💊</b><i class=e>Drugstore</i><i class=j>薬局</i><i class=t>藥局</i><i class=s>药局</i><i class=k>약국</i></a></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Soak</i><i class=j>温水観光地</i><i class=t>溫水觀光地</i><i class=s>温水观光地</i><i class=k>목욕</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-dry-cleaner"><b class=ic>👔</b><i class=e>Dry Cleaner</i><i class=j>クリーニング店</i><i class=t>洗衣店</i><i class=s>洗衣店</i><i class=k>세탁소</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-sauna"><b class=ic>🧖</b><i class=e>Sauna</i><i class=j>銭湯</i><i class=t>澡堂</i><i class=s>澡堂</i><i class=k>대중목욕탕</i></a></div><div class="sv-sp"><span class="L-tiles">12</span> · <span class="L-row">6×2</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Aqua</i><i class=j>水の町</i><i class=t>水之鎮</i><i class=s>水之镇</i><i class=k>아쿠아</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-fire-hydrant"><b class=ic>🧯</b><i class=e>Fire Hydrant</i><i class=j>消火栓</i><i class=t>消火栓</i><i class=s>消火栓</i><i class=k>소화전</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-fishing-pond"><b class=ic>🎣</b><i class=e>Fishing Pond</i><i class=j>つり堀</i><i class=t>釣魚池</i><i class=s>钓鱼池</i><i class=k>낚시터</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></span></div><div class="sv-sp"><span class="L-tiles">13</span> · <span class="L-row">5×4</span></div></li>
@@ -2204,7 +2211,7 @@ html:not(.js) #sub{display:none}
 <article class="sv-shop ord" style="--oj:13;--ot:94;--os:93;--ok:88" id="s-outdoor-pool">
 <div class="sv-head"><b class=ic>🛟</b><div class="sv-ht"><div class="sv-hn"><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></div><div class="sv-meta">4×4 · <span class="L-road"></span> · <span class="L-combos">2</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
 <ul class="sv-combos">
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Swimming</i><i class=j>スイミング街</i><i class=t>戲水街</i><i class=s>戏水街</i><i class=k>수영</i></b><span class="sv-bon"><span class="lp L-land"><b>+185%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🛟</b><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-heated-pool"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></a></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Swimming</i><i class=j>スイミング街</i><i class=t>戲水街</i><i class=s>戏水街</i><i class=k>수영</i></b><span class="sv-bon"><span class="lp L-land"><b>+185%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🛟</b><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-heated-pool"><b class=ic>🏊</b><i class=e>Heated Pool</i><i class=j>温水プール</i><i class=t>溫水泳池</i><i class=s>温水泳池</i><i class=k>온수 수영장</i></a></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Splashy</i><i class=j>新鮮街</i><i class=t>新鮮街</i><i class=s>新鲜街</i><i class=k>첨벙첨벙</i></b><span class="sv-bon"><span class="lp L-land"><b>+165%</b></span> <span class="pr L-price"><b>+25%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🛟</b><i class=e>Outdoor Pool</i><i class=j>屋外プール</i><i class=t>室外泳池</i><i class=s>室外泳池</i><i class=k>야외 수영장</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-aquarium"><b class=ic>🐠</b><i class=e>Aquarium</i><i class=j>水族館</i><i class=t>水族館</i><i class=s>水族馆</i><i class=k>수족관</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-fishmonger"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></a></div><div class="sv-sp"><span class="L-tiles">56</span> · <span class="L-row">12×6</span></div></li>
 </ul></article>
 <article class="sv-shop ord" style="--oj:127;--ot:108;--os:107;--ok:118" id="s-planetarium">
@@ -2285,7 +2292,7 @@ html:not(.js) #sub{display:none}
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Date</i><i class=j>デートスポット</i><i class=t>約會街</i><i class=s>约会街</i><i class=k>데이트</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-zoo"><b class=ic>🦒</b><i class=e>Zoo</i><i class=j>動物園</i><i class=t>動物園</i><i class=s>动物园</i><i class=k>동물원</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-cinema"><b class=ic>🎬</b><i class=e>Cinema</i><i class=j>映画館</i><i class=t>電影院</i><i class=s>电影院</i><i class=k>영화관</i></a></div><div class="sv-sp"><span class="L-tiles">88</span> · <span class="L-row">16×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Secretary</i><i class=j>ひしょ子像街</i><i class=t>羅秘書像街</i><i class=s>罗秘书像街</i><i class=k>비서</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-secretary-statue"><b class=ic>👩‍💼</b><i class=e>Secretary Statue</i><i class=j>ひしょ子像</i><i class=t>羅秘書像</i><i class=s>罗秘书像</i><i class=k>비서 동상</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-gold-trophy"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></span></div><div class="sv-sp"><span class="L-tiles">38</span> · <span class="L-row">8×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Hollywood</i><i class=j>ハリウッド街</i><i class=t>好萊塢街</i><i class=s>好莱坞街</i><i class=k>할리우드</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-cinema"><b class=ic>🎬</b><i class=e>Cinema</i><i class=j>映画館</i><i class=t>電影院</i><i class=s>电影院</i><i class=k>영화관</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-jewelry-shop"><b class=ic>💎</b><i class=e>Jewelry Shop</i><i class=j>宝石店</i><i class=t>寶石店</i><i class=s>宝石店</i><i class=k>보석 가게</i></a></div><div class="sv-sp"><span class="L-tiles">56</span> · <span class="L-row">12×6</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Fun Special</i><i class=j>金トロフィ街 遊</i><i class=t>金獎盃街 遊</i><i class=s>金奖杯街 游</i><i class=k>놀이 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-gold-trophy"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></span></div><div class="sv-sp"><span class="L-tiles">41</span> · <span class="L-row">9×6</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Fun Special</i><i class=j>金トロフィ街 遊</i><i class=t>金獎盃街 遊</i><i class=s>金奖杯街 游</i><i class=k>놀이 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-gold-trophy"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></span></div><div class="sv-sp"><span class="L-tiles">45</span> · <span class="L-row">9×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Smiley</i><i class=j>スマイル</i><i class=t>微笑街</i><i class=s>微笑街</i><i class=k>스마일</i></b><span class="sv-bon"><span class="lp L-land"><b>+190%</b></span> <span class="pr L-price"><b>+65%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-fountain-plaza"><b class=ic>💦</b><i class=e>Fountain Plaza</i><i class=j>噴水広場</i><i class=t>噴泉廣場</i><i class=s>喷泉广场</i><i class=k>분수 광장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-sally-prin-statue"><b class=ic>👸</b><i class=e>Sally Prin Statue</i><i class=j>ソフ子姫像</i><i class=t>軟子公主像</i><i class=s>软子公主像</i><i class=k>샐리 공주 동상</i></a></div><div class="sv-sp"><span class="L-tiles">73</span> · <span class="L-row">13×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Kairo</i><i class=j>カイロランド</i><i class=t>開羅樂園</i><i class=s>开罗乐园</i><i class=k>카이로</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-public-restrooms"><b class=ic>🚻</b><i class=e>Public Restrooms</i><i class=j>公共トイレ</i><i class=t>公共廁所</i><i class=s>公共厕所</i><i class=k>공중화장실</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-kairo-statue"><b class=ic>🤖</b><i class=e>Kairo Statue</i><i class=j>カイロ像</i><i class=t>開羅像</i><i class=s>开罗像</i><i class=k>카이로 동상</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></span></div><div class="sv-sp"><span class="L-tiles">41</span> · <span class="L-row">9×6</span></div></li>
 </ul></article>
@@ -2493,7 +2500,7 @@ html:not(.js) #sub{display:none}
 <div class="sv-head"><b class=ic>⚓</b><div class="sv-ht"><div class="sv-hn"><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></div><div class="sv-meta">2×4 · <span class="L-road"></span> · <span class="L-combos">2</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
 <ul class="sv-combos">
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Fishing</i><i class=j>海鮮街</i><i class=t>海鮮街</i><i class=s>海鲜街</i><i class=k>낚시</i></b><span class="sv-bon"><span class="lp L-land"><b>+125%</b></span> <span class="pr L-price"><b>+30%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>⚓</b><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-fishing-pond"><b class=ic>🎣</b><i class=e>Fishing Pond</i><i class=j>つり堀</i><i class=t>釣魚池</i><i class=s>钓鱼池</i><i class=k>낚시터</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-sushi-joint"><b class=ic>🍣</b><i class=e>Sushi Joint</i><i class=j>すし屋</i><i class=t>壽司店</i><i class=s>寿司店</i><i class=k>초밥집</i></a></div><div class="sv-sp"><span class="L-tiles">20</span> · <span class="L-row">6×4</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside</i><i class=j>海の街</i><i class=t>海洋街</i><i class=s>海洋街</i><i class=k>바닷가</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⚓</b><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-fishmonger"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></a></div><div class="sv-sp"><span class="L-tiles">16</span> · <span class="L-row">6×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside</i><i class=j>海の街</i><i class=t>海洋街</i><i class=s>海洋街</i><i class=k>바닷가</i></b><span class="sv-bon"><span class="lp L-land"><b>+90%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>⚓</b><i class=e>Wharf</i><i class=j>船着き場</i><i class=t>碼頭</i><i class=s>码头</i><i class=k>부두</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-fishmonger"><b class=ic>🐟</b><i class=e>Fishmonger</i><i class=j>魚屋</i><i class=t>魚店</i><i class=s>鱼店</i><i class=k>생선 가게</i></a></div><div class="sv-sp"><span class="L-tiles">20</span> · <span class="L-row">6×4</span></div></li>
 </ul></article>
 </div>
 <h4 class="sv-cathead"><span class="u u-en" lang="en">Landmarks</span><span class="u u-ja" lang="ja">名所</span><span class="u u-zh" lang="zh-Hant">地標</span><span class="u u-zhs" lang="zh-Hans">地标</span><span class="u u-ko" lang="ko">명소</span></h4><div class="sv-cards">
@@ -2503,7 +2510,7 @@ html:not(.js) #sub{display:none}
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Castle</i><i class=j>和洋カイロ決戦</i><i class=t>和洋開羅決戰</i><i class=s>和洋开罗决战</i><i class=k>성</i></b><span class="sv-bon"><span class="lp L-land"><b>+250%</b></span> <span class="pr L-price"><b>+40%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-palace"><b class=ic>🏰</b><i class=e>Palace</i><i class=j>キャッスル</i><i class=t>城堡</i><i class=s>城堡</i><i class=k>궁전</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-kairo-statue"><b class=ic>🤖</b><i class=e>Kairo Statue</i><i class=j>カイロ像</i><i class=t>開羅像</i><i class=s>开罗像</i><i class=k>카이로 동상</i></a></div><div class="sv-sp"><span class="L-tiles">36</span> · <span class="L-row">10×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Celeb</i><i class=j>セレブ街</i><i class=t>名流街</i><i class=s>名流街</i><i class=k>셀럽</i></b><span class="sv-bon"><span class="lp L-land"><b>+170%</b></span> <span class="pr L-price"><b>+40%</b></span></span></div><div class="sv-parts"><span class="sv-me"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-boutique"><b class=ic>👗</b><i class=e>Boutique</i><i class=j>ブティック</i><i class=t>時裝店</i><i class=s>时装店</i><i class=k>부티크</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-dept-store"><b class=ic>🛍️</b><i class=e>Dept. Store</i><i class=j>デパート</i><i class=t>百貨商店</i><i class=s>百货商店</i><i class=k>백화점</i></a></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Historic Special</i><i class=j>銀トロフィ街 館</i><i class=t>銀獎盃街 館</i><i class=s>银奖杯街 馆</i><i class=k>역사 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+170%</b></span> <span class="pr L-price"><b>+40%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-museum"><b class=ic>🏛️</b><i class=e>Museum</i><i class=j>博物館</i><i class=t>博物館</i><i class=s>博物馆</i><i class=k>박물관</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-silver-trophy"><b class=ic>🥈</b><i class=e>Silver Trophy</i><i class=j>銀トロフィ像</i><i class=t>銀盃像</i><i class=s>银杯像</i><i class=k>은 트로피</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></span></div><div class="sv-sp"><span class="L-tiles">25</span> · <span class="L-row">7×4</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside Tour</i><i class=j>海飲み観光地街</i><i class=t>海飲觀光地</i><i class=s>海饮观光地</i><i class=k>바닷가 여행</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-tapas-bar"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></span></div><div class="sv-sp"><span class="L-tiles">24</span> · <span class="L-row">8×4</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Seaside Tour</i><i class=j>海飲み観光地街</i><i class=t>海飲觀光地</i><i class=s>海饮观光地</i><i class=k>바닷가 여행</i></b><span class="sv-bon"><span class="lp L-land"><b>+145%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-tapas-bar"><b class=ic>🍷</b><i class=e>Tapas Bar</i><i class=j>居酒屋</i><i class=t>居酒屋</i><i class=s>居酒屋</i><i class=k>선술집</i></a><span class=sv-plus>+</span><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏯</b><i class=e>Castle</i><i class=j>お城</i><i class=t>古城</i><i class=s>古城</i><i class=k>성</i></span></div><div class="sv-sp"><span class="L-tiles">28</span> · <span class="L-row">8×4</span></div></li>
 </ul></article>
 <article class="sv-shop ord" style="--oj:87;--ot:17;--os:17;--ok:19" id="s-monument">
 <div class="sv-head"><b class=ic>🗿</b><div class="sv-ht"><div class="sv-hn"><i class=e>Monument</i><i class=j>大仏様</i><i class=t>大佛像</i><i class=s>大佛像</i><i class=k>기념비</i></div><div class="sv-meta">2×2 · <span class="L-noroad"></span> · <span class="L-combos">3</span></div></div><a class="sv-up" href="#sv-index" aria-label="Back to index">↑</a></div>
@@ -2605,7 +2612,7 @@ html:not(.js) #sub{display:none}
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Secretary</i><i class=j>ひしょ子像街</i><i class=t>羅秘書像街</i><i class=s>罗秘书像街</i><i class=k>비서</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-secretary-statue"><b class=ic>👩‍💼</b><i class=e>Secretary Statue</i><i class=j>ひしょ子像</i><i class=t>羅秘書像</i><i class=s>罗秘书像</i><i class=k>비서 동상</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-theme-park"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></a></div><div class="sv-sp"><span class="L-tiles">38</span> · <span class="L-row">8×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Minnie</i><i class=j>みな子像街</i><i class=t>美奈子像街</i><i class=s>美奈子像街</i><i class=k>미니</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-minnie-statue"><b class=ic>🐭</b><i class=e>Minnie Statue</i><i class=j>みな子像</i><i class=t>美奈子像</i><i class=s>美奈子像</i><i class=k>미니 동상</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-aquarium"><b class=ic>🐠</b><i class=e>Aquarium</i><i class=j>水族館</i><i class=t>水族館</i><i class=s>水族馆</i><i class=k>수족관</i></a></div><div class="sv-sp"><span class="L-tiles">38</span> · <span class="L-row">8×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Angelic Kairobot</i><i class=j>天使カイロ像街</i><i class=t>天使開羅像街</i><i class=s>天使开罗像街</i><i class=k>천사 카이로봇</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+45%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-angelic-kairo-statue"><b class=ic>👼</b><i class=e>Angelic Kairo Statue</i><i class=j>天使カイロ像</i><i class=t>天使開羅像</i><i class=s>天使开罗像</i><i class=k>천사 카이로 동상</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-zoo"><b class=ic>🦒</b><i class=e>Zoo</i><i class=j>動物園</i><i class=t>動物園</i><i class=s>动物园</i><i class=k>동물원</i></a></div><div class="sv-sp"><span class="L-tiles">38</span> · <span class="L-row">8×6</span></div></li>
-<li><div class="sv-ch"><b class="sv-cname"><i class=e>Fun Special</i><i class=j>金トロフィ街 遊</i><i class=t>金獎盃街 遊</i><i class=s>金奖杯街 游</i><i class=k>놀이 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-theme-park"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></a></div><div class="sv-sp"><span class="L-tiles">41</span> · <span class="L-row">9×6</span></div></li>
+<li><div class="sv-ch"><b class="sv-cname"><i class=e>Fun Special</i><i class=j>金トロフィ街 遊</i><i class=t>金獎盃街 遊</i><i class=s>金奖杯街 游</i><i class=k>놀이 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-beach-house"><b class=ic>🏖️</b><i class=e>Beach House</i><i class=j>海の家</i><i class=t>海之家</i><i class=s>海之家</i><i class=k>해변의 집</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-theme-park"><b class=ic>🎢</b><i class=e>Theme Park</i><i class=j>遊園地</i><i class=t>遊樂園</i><i class=s>游乐园</i><i class=k>놀이공원</i></a></div><div class="sv-sp"><span class="L-tiles">45</span> · <span class="L-row">9×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Training</i><i class=j>トレーニング</i><i class=t>特訓街</i><i class=s>特训街</i><i class=k>트레이닝</i></b><span class="sv-bon"><span class="lp L-land"><b>+210%</b></span> <span class="pr L-price"><b>+35%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-sports-grounds"><b class=ic>🏃</b><i class=e>Sports Grounds</i><i class=j>運動場</i><i class=t>運動場</i><i class=s>运动场</i><i class=k>운동장</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-baseball-park"><b class=ic>⚾</b><i class=e>Baseball Park</i><i class=j>野球場</i><i class=t>棒球場</i><i class=s>棒球场</i><i class=k>야구장</i></a></div><div class="sv-sp"><span class="L-tiles">53</span> · <span class="L-row">11×6</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Sushi Special</i><i class=j>金トロフィ街 寿</i><i class=t>金獎盃街 壽</i><i class=s>金奖杯街 寿</i><i class=k>초밥 스페셜</i></b><span class="sv-bon"><span class="lp L-land"><b>+190%</b></span> <span class="pr L-price"><b>+65%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-comms-tower"><b class=ic>📡</b><i class=e>Comms Tower</i><i class=j>電波塔</i><i class=t>電波塔</i><i class=s>电波塔</i><i class=k>전파탑</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-sushi-joint"><b class=ic>🍣</b><i class=e>Sushi Joint</i><i class=j>すし屋</i><i class=t>壽司店</i><i class=s>寿司店</i><i class=k>초밥집</i></a></div><div class="sv-sp"><span class="L-tiles">21</span> · <span class="L-row">7×4</span></div></li>
 <li><div class="sv-ch"><b class="sv-cname"><i class=e>Kairoman</i><i class=j>カイロマン像街</i><i class=t>開羅超人像街</i><i class=s>开罗超人像街</i><i class=k>카이로맨</i></b><span class="sv-bon"><span class="lp L-land"><b>+190%</b></span> <span class="pr L-price"><b>+65%</b></span></span></div><div class="sv-parts"><a class="sv-p" href="#s-kairoman-statue"><b class=ic>🦸</b><i class=e>Kairoman Statue</i><i class=j>カイロマン像</i><i class=t>開羅超人像</i><i class=s>开罗超人像</i><i class=k>카이로맨 동상</i></a><span class=sv-plus>+</span><span class="sv-me"><b class=ic>🏆</b><i class=e>Gold Trophy</i><i class=j>金トロフィ像</i><i class=t>金盃像</i><i class=s>金杯像</i><i class=k>금 트로피</i></span><span class=sv-plus>+</span><a class="sv-p" href="#s-cinema"><b class=ic>🎬</b><i class=e>Cinema</i><i class=j>映画館</i><i class=t>電影院</i><i class=s>电影院</i><i class=k>영화관</i></a></div><div class="sv-sp"><span class="L-tiles">18</span> · <span class="L-row">6×4</span></div></li>
@@ -2707,7 +2714,6 @@ html:not(.js) #sub{display:none}
 
 <div class="cartbar js-only"><div class="in">
   <div class="ct" id="cartct"></div>
-  <button id="opencart">Plan space</button>
 </div></div>
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog"><div class="in" id="sheetin"></div></div>
@@ -2904,7 +2910,7 @@ Smiley|Fountain Plaza|Theme Park|Sally Prin Statue|190|65`;
 const ICON={"24-7 Mart":"🏪","3-Star Hotel":"🏨","Ackbar Statue":"🐸","Airport":"✈️","Ancient Pine":"🌲","Angelic Kairo Statue":"👼","Anime Shop":"📺","Aquarium":"🐠","Bakery":"🥐","Bank":"🏦","Baseball Park":"⚾","BBQ House":"🍖","Beach House":"🏖️","Bearington Statue":"🧸","Beautician":"💇","Bench":"🪑","Bike Shop":"🚲","Blogbuster":"📼","Bookstore":"📚","Boulder":"🪨","Boutique":"👗","Bowling Alley":"🎳","Bronze Trophy":"🥉","Bunny Statue":"🐰","Bus Stop":"🚏","Cactus":"🌵","Cafe":"☕","Cakery":"🍰","Camp Site":"⛺","Candy Shop":"🍬","Car Dealer":"🚗","Casino":"🎰","Castle":"🏯","Cell Shop":"📱","Cherry Tree":"🌸","Chimpan Z Statue":"🐵","Cinema":"🎬","Clinic":"🩺","Clock Tower":"🕰️","Comms Tower":"📡","Concert Hall":"🎻","Contractors":"🏗️","Cram School":"✏️","Creperie":"🥞","Dance Club":"🪩","Dept. Store":"🛍️","Diner":"🍳","Doggie Statue":"🐕","Donut Shop":"🍩","Drugstore":"💊","Dry Cleaner":"👔","Ducky Statue":"🦆","Estate Agent":"🔑","Farm":"🌾","Fast 'n' Fried":"🍟","Fire Hydrant":"🧯","Fishing Pond":"🎣","Fishmonger":"🐟","Florist":"💐","Flowerbed":"🌷","Fountain":"⛲","Fountain Plaza":"💦","Furniture Shop":"🛋️","Game Arcade":"🕹️","Game Shop":"🎮","Gift Shop":"🎁","Gingko":"🍂","Gold Trophy":"🏆","Golf Course":"⛳","Golf Training Center":"🏌️","Greengrocer":"🥬","Gym":"🏋️","Heated Pool":"🏊","Helipad":"🚁","High-Rise":"🏢","Home Center":"🔨","Home Elec.":"🔌","Hospital":"🏥","Hydrangeas":"🪻","Info Center":"🗺️","Jewelry Shop":"💎","Kairo Bldg":"🏬","Kairo Statue":"🤖","Kairodad Statue":"👨","Kairoman Statue":"🦸","Kairopuppy Statue":"🐶","Local Center":"🏘️","Lotto Ticket Shop":"🎟️","Lunches 2 GO":"🍱","Minnie Statue":"🐭","Monument":"🗿","Motorcycle Shop":"🏍️","Mountain":"⛰️","Museum":"🏛️","Music Shop":"🎸","Observation Deck":"🗼","Octo-Alien Statue":"👽","Office Bldg":"💼","Office Tower":"🏙️","Orchard":"🍎","Outdoor Pool":"🛟","Pagoda":"🏮","Palace":"🏰","Park":"🌳","Parking Lot":"🅿️","PC Shop":"💻","Pet Shop":"🐈","Phone Box":"☎️","Pizzeria":"🍕","Planetarium":"🌌","Public Restrooms":"🚻","Pumpkin Statue":"🎃","Racecourse":"🏇","Ramen Bar":"🍜","Ranch":"🐄","Restaurant":"🍽️","Rocket Hall":"🚀","Safari Park":"🦁","Sally Prin Statue":"👸","Sauna":"🧖","School":"🏫","Secretary Statue":"👩‍💼","Security Inc.":"🛡️","Sheepy Statue":"🐑","Shoe Shop":"👟","Shrine":"⛩️","Silver Trophy":"🥈","Skyscraper":"🌆","Spa":"♨️","Spa Hotel":"🛁","Sports Grounds":"🏃","Sports Shop":"🎾","Stadium":"🏟️","Steakhouse":"🥩","Subway":"🚇","Sunflowers":"🌻","Supermarket":"🛒","Sushi Joint":"🍣","Tapas Bar":"🍷","Temple":"🛕","Theme Park":"🎢","Toy Shop":"🪀","Trash Cans":"🗑️","TV Station":"📹","Utility Pole":"⚡","Vending Machine":"🥤","Wariobot Statue":"🦾","Weeping Cherry":"🎋","Wharf":"⚓","Zoo":"🦒"};
 
 /* Footprints in tiles (width x depth). VERIFIED from the Kairosoft Wiki structures table; ESTIMATED where the wiki page could not be read. */
-const VERIFIED={"Subway":[2,2],"Office Bldg":[2,2],"Flowerbed":[1,1],"Cactus":[1,1],"Boulder":[1,1],"Hydrangeas":[1,1],"Gingko":[2,2],"Orchard":[2,2],"Mountain":[6,6],"Cherry Tree":[2,2],"Ancient Pine":[2,2],"Weeping Cherry":[2,2],"Utility Pole":[1,1],"Clock Tower":[1,1],"Fire Hydrant":[1,1],"Trash Cans":[1,1],"Vending Machine":[1,1],"Public Restrooms":[1,1],"Bench":[1,1],"Fountain":[1,1],"Doggie Statue":[1,1],"Phone Box":[1,1],"Lotto Ticket Shop":[1,1],"Park":[2,2],"Info Center":[1,1],"Shrine":[2,2],"Temple":[2,2],"Monument":[2,2],"Kairo Statue":[2,2],"Pagoda":[4,4],"Bronze Trophy":[1,1],"Silver Trophy":[1,1],"Gold Trophy":[1,1],"Ducky Statue":[1,1],"Ackbar Statue":[1,1],"Kairoman Statue":[1,1],"Kairopuppy Statue":[1,1],"Kairodad Statue":[1,1],"Bearington Statue":[1,1],"Sally Prin Statue":[1,1],"Chimpan Z Statue":[1,1],"Pumpkin Statue":[1,1],"Secretary Statue":[1,1],"Sheepy Statue":[1,1],"Octo-Alien Statue":[1,1],"Minnie Statue":[1,1],"Wariobot Statue":[1,1],"Bunny Statue":[1,1],"Angelic Kairo Statue":[1,1],"Sunflowers":[1,1],"24-7 Mart":[2,2],"Anime Shop":[2,2],"Bakery":[2,2],"BBQ House":[2,2],"Beach House":[2,2],"Beautician":[2,2],"Bike Shop":[2,2],"Blogbuster":[2,2],"Bookstore":[2,2],"Boutique":[2,2],"Bowling Alley":[2,2],"Cafe":[2,2],"Cakery":[2,2],"Candy Shop":[2,2],"Casino":[2,2],"Cell Shop":[2,2],"Clinic":[2,2],"Contractors":[2,2],"Cram School":[2,2],"Creperie":[2,2],"Dance Club":[2,2],"Dept. Store":[4,2],"Diner":[4,2],"Donut Shop":[2,2],"Drugstore":[2,2],"Dry Cleaner":[2,2],"Estate Agent":[2,2],"Fast 'n' Fried":[2,2],"Fishing Pond":[4,2],"Fishmonger":[2,2],"Florist":[2,2],"Furniture Shop":[2,2],"Game Arcade":[2,2],"Game Shop":[2,2],"Gift Shop":[2,2],"Greengrocer":[2,2],"Heated Pool":[2,2],"Jewelry Shop":[2,2],"Local Center":[2,2],"Lunches 2 GO":[2,2],"Motorcycle Shop":[4,2],"Museum":[4,2],"Music Shop":[2,2],"Observation Deck":[2,2],"Parking Lot":[2,2],"Pet Shop":[2,2],"Pizzeria":[2,2],"Ramen Bar":[2,2],"Restaurant":[2,2],"Sauna":[2,2],"Security Inc.":[2,2],"Shoe Shop":[2,2],"Spa":[4,2],"Sports Shop":[2,2],"Steakhouse":[2,2],"Supermarket":[2,2],"Sushi Joint":[2,2],"Tapas Bar":[2,2],"Toy Shop":[2,2],"3-Star Hotel":[4,4],"Airport":[10,8],"Aquarium":[6,6],"Bank":[4,4],"Baseball Park":[6,6],"Camp Site":[4,4],"Car Dealer":[4,4],"Castle":[4,4],"Cinema":[4,4],"Comms Tower":[4,4],"Concert Hall":[4,4],"Farm":[4,4],"Fountain Plaza":[6,6],"Golf Course":[6,6],"Gym":[4,4],"Helipad":[4,4],"High-Rise":[4,4],"Home Center":[4,4],"Home Elec.":[4,4],"Hospital":[4,4],"Kairo Bldg":[4,4],"Palace":[4,4],"PC Shop":[4,4],"Planetarium":[4,4],"Outdoor Pool":[4,4],"Racecourse":[6,6],"Ranch":[6,6],"Rocket Hall":[4,4],"Safari Park":[6,6],"School":[6,6],"Skyscraper":[6,6],"Spa Hotel":[4,4],"Sports Grounds":[4,4],"Stadium":[6,6],"Theme Park":[6,6],"TV Station":[4,4],"Zoo":[6,6],"Bus Stop":[2,2],"Wharf":[2,4]};
+const VERIFIED={"Subway":[2,2],"Office Bldg":[2,2],"Flowerbed":[1,1],"Cactus":[1,1],"Boulder":[1,1],"Hydrangeas":[1,1],"Gingko":[2,2],"Orchard":[2,2],"Mountain":[6,6],"Cherry Tree":[2,2],"Ancient Pine":[2,2],"Weeping Cherry":[2,2],"Utility Pole":[1,1],"Clock Tower":[1,1],"Fire Hydrant":[1,1],"Trash Cans":[1,1],"Vending Machine":[1,1],"Public Restrooms":[1,1],"Bench":[1,1],"Fountain":[1,1],"Doggie Statue":[1,1],"Phone Box":[1,1],"Lotto Ticket Shop":[1,1],"Park":[2,2],"Info Center":[1,1],"Shrine":[2,2],"Temple":[2,2],"Monument":[2,2],"Kairo Statue":[2,2],"Pagoda":[4,4],"Bronze Trophy":[1,1],"Silver Trophy":[1,1],"Gold Trophy":[1,1],"Ducky Statue":[1,1],"Ackbar Statue":[1,1],"Kairoman Statue":[1,1],"Kairopuppy Statue":[1,1],"Kairodad Statue":[1,1],"Bearington Statue":[1,1],"Sally Prin Statue":[1,1],"Chimpan Z Statue":[1,1],"Pumpkin Statue":[1,1],"Secretary Statue":[1,1],"Sheepy Statue":[1,1],"Octo-Alien Statue":[1,1],"Minnie Statue":[1,1],"Wariobot Statue":[1,1],"Bunny Statue":[1,1],"Angelic Kairo Statue":[1,1],"Sunflowers":[1,1],"24-7 Mart":[2,2],"Anime Shop":[2,2],"Bakery":[2,2],"BBQ House":[2,2],"Beach House":[4,2],"Beautician":[2,2],"Bike Shop":[2,2],"Blogbuster":[2,2],"Bookstore":[2,2],"Boutique":[2,2],"Bowling Alley":[2,2],"Cafe":[2,2],"Cakery":[2,2],"Candy Shop":[2,2],"Casino":[2,2],"Cell Shop":[2,2],"Clinic":[2,2],"Contractors":[2,2],"Cram School":[2,2],"Creperie":[2,2],"Dance Club":[2,2],"Dept. Store":[4,2],"Diner":[4,2],"Donut Shop":[2,2],"Drugstore":[2,2],"Dry Cleaner":[2,2],"Estate Agent":[2,2],"Fast 'n' Fried":[2,2],"Fishing Pond":[4,2],"Fishmonger":[2,2],"Florist":[2,2],"Furniture Shop":[2,2],"Game Arcade":[2,2],"Game Shop":[2,2],"Gift Shop":[2,2],"Greengrocer":[2,2],"Heated Pool":[2,2],"Jewelry Shop":[2,2],"Local Center":[2,2],"Lunches 2 GO":[2,2],"Motorcycle Shop":[4,2],"Museum":[4,2],"Music Shop":[2,2],"Observation Deck":[2,2],"Parking Lot":[2,2],"Pet Shop":[2,2],"Pizzeria":[2,2],"Ramen Bar":[2,2],"Restaurant":[2,2],"Sauna":[2,2],"Security Inc.":[2,2],"Shoe Shop":[2,2],"Spa":[4,2],"Sports Shop":[2,2],"Steakhouse":[2,2],"Supermarket":[2,2],"Sushi Joint":[2,2],"Tapas Bar":[2,2],"Toy Shop":[2,2],"3-Star Hotel":[4,4],"Airport":[10,8],"Aquarium":[6,6],"Bank":[4,4],"Baseball Park":[6,6],"Camp Site":[4,4],"Car Dealer":[4,4],"Castle":[4,4],"Cinema":[4,4],"Comms Tower":[4,4],"Concert Hall":[4,4],"Farm":[4,4],"Fountain Plaza":[6,6],"Golf Course":[6,6],"Gym":[4,4],"Helipad":[4,4],"High-Rise":[4,4],"Home Center":[4,4],"Home Elec.":[4,4],"Hospital":[4,4],"Kairo Bldg":[4,4],"Palace":[4,4],"PC Shop":[4,4],"Planetarium":[4,4],"Outdoor Pool":[4,4],"Racecourse":[6,6],"Ranch":[6,6],"Rocket Hall":[4,4],"Safari Park":[6,6],"School":[6,6],"Skyscraper":[6,6],"Spa Hotel":[4,4],"Sports Grounds":[4,4],"Stadium":[6,6],"Theme Park":[6,6],"TV Station":[4,4],"Zoo":[6,6],"Bus Stop":[2,2],"Wharf":[2,4]};
 const ESTIMATED={"Office Tower":[4,4],"Golf Training Center":[4,4]};
 let MINE={}; try{MINE=JSON.parse(localStorage.getItem("dts-size")||"{}")||{};}catch(e){}
 function size(s){
@@ -3310,7 +3316,7 @@ en:{title:"專賣街 Combo Finder",sub:"Dream Town Story · tap a shop to see ev
  allShops:"All shops",ofN:(a,b)=>`${a} of ${b}`,noMatch:"No shop matches that name.",
  note:"Space: total tiles the buildings cover, and the strip they need side by side along one road with each door (short side) facing the road (road tiles not counted). Decorations such as plants, statues, trophies, fountains and monuments need no road; you can change this for any building at the top. Sizes come from the Size column of the Kairosoft Wiki Structures table (rechecked 8 Oct 2026); sizes marked ≈ are estimates, and you can change any size in the box at the top. Combo data: Kairosoft Wiki, 186 combos checked row by row. Japanese and Simplified Chinese names come from player guides that list the in-game names (kouryaku7.com and 9game.cn); Traditional Chinese names are converted from the Simplified Chinese ones; Korean names are unofficial translations and may differ from the game. Icons are original pixel drawings for this tool, not the game's sprites.",
  cartN:n=>`🛒 ${n} combo${n===1?"":"s"} in cart`,cartEmpty:"🛒 Cart is empty",cartHint:"Add combos with “+ Cart”",plan:"Plan space",
- planner:"Cart · space planner",close:"Close",emptyCart:m=>`Your cart is empty. Tap “+ Cart” on any combo, add up to ${m}, then come back here.`,remove:"Remove",addMore:"Add at least one more combo to plan them together.",
+ planner:"Cart · space planner",optBlock:"Block ",optRow:"One row ",optStack:"Rows per combo ",sameArea:" Same area either way: pick the shape that fits your free space.",saveImg:"🖼 Save as image",saving:"Making the image…",savedAlbum:"Saved to your photo album.",saveFail:"Could not save the image. Please try again.",imgTitle:"Layout image",download:"Download PNG",saveHint:"If the buttons do nothing on your phone, press and hold the image and choose Save image (or right-click it on a computer).",shareImg:"📤 Share / Save to Photos",imgFoot:"Dream Town Story · unofficial fan tool",close:"Close",emptyCart:m=>`Your cart is empty. Tap “+ Cart” on any combo, add up to ${m}, then come back here.`,remove:"Remove",addMore:"Add at least one more combo to plan them together.",
  share:"Share buildings between combos",sep:"Build each combo separately",bld:"buildings to build",shared:n=>` (${n} shared)`,covered:"tiles covered",saves:n=>` · saves ${n} vs separate`,
  smallest:n=>`smallest area found: ${n} tiles`,noLayout:"no layout found",
  kBlock:"Best layout: compact block, road all around",kRow:"Best layout: one row along a road",kStack:"Layout: one row per combo, each on its own road",
@@ -3328,7 +3334,7 @@ ja:{title:"專賣街 コンボ検索",sub:"Dream Town Story · 店をタップ�
  allShops:"すべての店",ofN:(a,b)=>`${b} 件中 ${a} 件`,noMatch:"その名前の店はありません。",
  note:"広さ：建物が占めるマスの合計と、入口（短い辺）を道路に向けて1本の道路沿いに並べたときに必要な幅（道路のマスは含みません）。植物・像・トロフィー・噴水・記念碑などの飾りは道路不要です（上の欄で建物ごとに変更できます）。大きさはKairosoft Wikiの建物一覧「Size」列によります（2026年10月8日に再確認）。≈ は推定値で、上の欄からいつでも変更できます。コンボ情報：Kairosoft Wiki、186件を1件ずつ照合済み。日本語と簡体字中国語の名前は、ゲーム内の名前を載せた攻略サイト（kouryaku7.com、9game.cn）によります。繁体字中国語は簡体字から変換したもので、韓国語の名前は非公式の翻訳のため、ゲームとは異なる場合があります。アイコンはこのツール用のオリジナルで、ゲームの画像ではありません。",
  cartN:n=>`🛒 カートにコンボ ${n} 件`,cartEmpty:"🛒 カートは空です",cartHint:"「+ カート」でコンボを追加",plan:"広さを計算",
- planner:"カート · 広さプランナー",close:"閉じる",emptyCart:m=>`カートは空です。コンボの「+ カート」をタップして最大 ${m} 件まで追加してください。`,remove:"削除",addMore:"まとめて計算するには、もう1つ以上コンボを追加してください。",
+ planner:"カート · 広さプランナー",optBlock:"ブロック ",optRow:"一列 ",optStack:"コンボごとに一列 ",sameArea:"どちらも同じ面積です。空いている場所に合う形を選んでください。",saveImg:"🖼 画像として保存",saving:"画像を作成中…",savedAlbum:"写真アルバムに保存しました。",saveFail:"画像を保存できませんでした。もう一度お試しください。",imgTitle:"配置の画像",download:"PNGをダウンロード",saveHint:"ボタンが反応しない場合は、画像を長押しして「画像を保存」を選んでください（パソコンでは右クリック）。",shareImg:"📤 共有・写真に保存",imgFoot:"Dream Town Story · 非公式ファンツール",close:"閉じる",emptyCart:m=>`カートは空です。コンボの「+ カート」をタップして最大 ${m} 件まで追加してください。`,remove:"削除",addMore:"まとめて計算するには、もう1つ以上コンボを追加してください。",
  share:"コンボ間で建物を共有",sep:"コンボごとに別々に建てる",bld:"建てる建物",shared:n=>`（共有 ${n}）`,covered:"占めるマス",saves:n=>` · 別々より ${n} マス節約`,
  smallest:n=>`見つかった最小面積：${n} マス`,noLayout:"配置が見つかりません",
  kBlock:"最適な配置：まとまったブロック（周りを道路で囲む）",kRow:"最適な配置：道路沿いに一列",kStack:"配置：コンボごとに一列、それぞれ別の道路",
@@ -3346,7 +3352,7 @@ zh:{title:"專賣街 組合搜尋",sub:"Dream Town Story · 點選一間店，�
  allShops:"全部店舖",ofN:(a,b)=>`${a} / ${b}`,noMatch:"沒有符合名稱的店舖。",
  note:"空間：建築物佔用的總格數，以及入口（短邊）面向道路、沿一條道路並排時所需的長度（不計道路格）。植物、雕像、獎盃、噴泉、紀念碑等裝飾不需道路（可在上方逐一更改）。佔地資料來自 Kairosoft Wiki 建築一覽的「Size」欄（2026年10月8日重新核對）；標示 ≈ 的為估計值，可在上方的欄位隨時更改。組合資料：Kairosoft Wiki，186 個組合已逐行核對。日文及簡體中文名稱來自列出遊戲內名稱的攻略網站（kouryaku7.com、9game.cn）；繁體中文名稱由簡體中文轉換而成；韓文名稱為非官方翻譯，可能與遊戲不同。圖示為本工具原創的像素圖，並非遊戲圖像。",
  cartN:n=>`🛒 購物車內有 ${n} 個組合`,cartEmpty:"🛒 購物車是空的",cartHint:"按「+ 購物車」加入組合",plan:"計算空間",
- planner:"購物車 · 空間規劃",close:"關閉",emptyCart:m=>`購物車是空的。在任何組合按「+ 購物車」，最多加入 ${m} 個，然後再回來這裡。`,remove:"移除",addMore:"請再加入至少一個組合，才能一起計算。",
+ planner:"購物車 · 空間規劃",optBlock:"方塊 ",optRow:"一行 ",optStack:"每組合一行 ",sameArea:"兩種排列面積相同，請按空地形狀選擇。",saveImg:"🖼 儲存為圖片",saving:"正在製作圖片…",savedAlbum:"已儲存到相簿。",saveFail:"無法儲存圖片，請再試一次。",imgTitle:"排列圖片",download:"下載 PNG",saveHint:"如果按鈕沒有反應，請長按圖片並選擇「儲存圖片」（電腦請按右鍵）。",shareImg:"📤 分享／儲存到相簿",imgFoot:"Dream Town Story · 非官方愛好者工具",close:"關閉",emptyCart:m=>`購物車是空的。在任何組合按「+ 購物車」，最多加入 ${m} 個，然後再回來這裡。`,remove:"移除",addMore:"請再加入至少一個組合，才能一起計算。",
  share:"組合之間共用建築",sep:"每個組合分開建造",bld:"需建造的建築",shared:n=>`（共用 ${n} 個）`,covered:"佔用格數",saves:n=>` · 比分開建造省 ${n} 格`,
  smallest:n=>`找到的最小面積：${n} 格`,noLayout:"找不到排列",
  kBlock:"最佳排列：緊密方塊，四周圍繞道路",kRow:"最佳排列：沿一條道路排成一行",kStack:"排列：每個組合一行，各有自己的道路",
@@ -3364,7 +3370,7 @@ zhs:{title:"专卖街 组合搜索",sub:"Dream Town Story · 点击一家店，�
  allShops:"全部店铺",ofN:(a,b)=>`${a} / ${b}`,noMatch:"没有符合名称的店铺。",
  note:"空间：建筑物占用的总格数，以及入口（短边）面向道路、沿一条道路并排时所需的长度（不计道路格）。植物、雕像、奖杯、喷泉、纪念碑等装饰不需道路（可在上方逐一更改）。占地资料来自 Kairosoft Wiki 建筑一览的“Size”栏（2026年10月8日重新核对）；标示 ≈ 的为估计值，可在上方的栏位随时更改。组合资料：Kairosoft Wiki，186 个组合已逐行核对。日文及简体中文名称来自列出游戏内名称的攻略网站（kouryaku7.com、9game.cn）；繁体中文名称由简体中文转换而成；韩文名称为非官方翻译，可能与游戏不同。图示为本工具原创的像素图，并非游戏图像。",
  cartN:n=>`🛒 购物车内有 ${n} 个组合`,cartEmpty:"🛒 购物车是空的",cartHint:"按“+ 购物车”加入组合",plan:"计算空间",
- planner:"购物车 · 空间规划",close:"关闭",emptyCart:m=>`购物车是空的。在任何组合按“+ 购物车”，最多加入 ${m} 个，然后再回来这里。`,remove:"移除",addMore:"请再加入至少一个组合，才能一起计算。",
+ planner:"购物车 · 空间规划",optBlock:"方块 ",optRow:"一行 ",optStack:"每组合一行 ",sameArea:"两种排列面积相同，请按空地形状选择。",saveImg:"🖼 保存为图片",saving:"正在生成图片…",savedAlbum:"已保存到相册。",saveFail:"无法保存图片，请再试一次。",imgTitle:"排列图片",download:"下载 PNG",saveHint:"如果按钮没有反应，请长按图片并选择“保存图片”（电脑请右键点击）。",shareImg:"📤 分享／保存到相册",imgFoot:"Dream Town Story · 非官方爱好者工具",close:"关闭",emptyCart:m=>`购物车是空的。在任何组合按“+ 购物车”，最多加入 ${m} 个，然后再回来这里。`,remove:"移除",addMore:"请再加入至少一个组合，才能一起计算。",
  share:"组合之间共用建筑",sep:"每个组合分开建造",bld:"需建造的建筑",shared:n=>`（共用 ${n} 个）`,covered:"占用格数",saves:n=>` · 比分开建造省 ${n} 格`,
  smallest:n=>`找到的最小面积：${n} 格`,noLayout:"找不到排列",
  kBlock:"最佳排列：紧密方块，四周围绕道路",kRow:"最佳排列：沿一条道路排成一行",kStack:"排列：每个组合一行，各有自己的道路",
@@ -3382,7 +3388,7 @@ ko:{title:"專賣街 콤보 찾기",sub:"Dream Town Story · 가게를 누르면
  allShops:"모든 가게",ofN:(a,b)=>`${b}개 중 ${a}개`,noMatch:"그 이름의 가게가 없습니다.",
  note:"공간: 건물이 차지하는 칸의 합계와, 입구(짧은 변)를 도로로 향하게 해서 도로 하나를 따라 나란히 놓을 때 필요한 길이입니다(도로 칸은 제외). 식물, 동상, 트로피, 분수, 기념비 같은 장식은 도로가 필요 없습니다(위에서 건물마다 바꿀 수 있습니다). 크기는 Kairosoft Wiki 건물 목록의 Size 열 기준입니다(2026년 10월 8일 재확인). ≈ 표시는 추정값이며 위의 칸에서 언제든 바꿀 수 있습니다. 콤보 정보: Kairosoft Wiki, 186개를 한 줄씩 대조했습니다. 일본어와 중국어 간체 이름은 게임 속 이름을 정리한 공략 사이트(kouryaku7.com, 9game.cn)에서 가져왔고, 중국어 번체 이름은 간체에서 변환했습니다. 한국어 이름은 비공식 번역이라 게임과 다를 수 있습니다. 아이콘은 이 도구용 오리지널 픽셀 그림이며 게임 이미지가 아닙니다.",
  cartN:n=>`🛒 장바구니에 콤보 ${n}개`,cartEmpty:"🛒 장바구니가 비어 있습니다",cartHint:"“+ 장바구니”로 콤보를 담으세요",plan:"공간 계산",
- planner:"장바구니 · 공간 플래너",close:"닫기",emptyCart:m=>`장바구니가 비어 있습니다. 콤보의 “+ 장바구니”를 눌러 최대 ${m}개까지 담은 뒤 다시 오세요.`,remove:"빼기",addMore:"함께 계산하려면 콤보를 하나 이상 더 담으세요.",
+ planner:"장바구니 · 공간 플래너",optBlock:"블록 ",optRow:"한 줄 ",optStack:"콤보마다 한 줄 ",sameArea:" 어느 쪽이든 면적은 같습니다. 빈 땅 모양에 맞는 쪽을 고르세요.",saveImg:"🖼 이미지로 저장",saving:"이미지를 만드는 중…",savedAlbum:"사진 앨범에 저장했습니다.",saveFail:"이미지를 저장하지 못했습니다. 다시 시도해 주세요.",imgTitle:"배치 이미지",download:"PNG 다운로드",saveHint:"버튼이 반응하지 않으면 이미지를 길게 누르고 이미지 저장을 고르세요 (컴퓨터에서는 마우스 오른쪽 버튼).",shareImg:"📤 공유 / 사진에 저장",imgFoot:"Dream Town Story · 비공식 팬 도구",close:"닫기",emptyCart:m=>`장바구니가 비어 있습니다. 콤보의 “+ 장바구니”를 눌러 최대 ${m}개까지 담은 뒤 다시 오세요.`,remove:"빼기",addMore:"함께 계산하려면 콤보를 하나 이상 더 담으세요.",
  share:"콤보끼리 건물 공유",sep:"콤보마다 따로 짓기",bld:"지을 건물",shared:n=>` (공유 ${n}개)`,covered:"차지하는 칸",saves:n=>` · 따로 지을 때보다 ${n}칸 절약`,
  smallest:n=>`찾은 최소 면적: ${n}칸`,noLayout:"배치를 찾지 못함",
  kBlock:"최적 배치: 촘촘한 블록, 사방이 도로",kRow:"최적 배치: 도로를 따라 한 줄",kStack:"배치: 콤보마다 한 줄, 각자 도로",
@@ -3393,6 +3399,10 @@ ko:{title:"專賣街 콤보 찾기",sub:"Dream Town Story · 가게를 누르면
  showRow:"한 줄 배치 보기",noLayoutMsg:n=>`계산 한도 안에서 배치를 찾지 못했습니다. 건물은 모두 ${n}칸입니다.`,layoutAria:"추천 배치",lang:"언어",fullLink:"🌐 온라인 최신 버전 열기",credits:`출처: 콤보와 건물 크기 데이터는 <a href="https://kairosoft.wiki.gg/" target="_blank" rel="noopener">Kairosoft Wiki</a>의 <a href="https://kairosoft.wiki.gg/wiki/Combos_(Dream_Town_Story)" target="_blank" rel="noopener">Combos (Dream Town Story)</a>, <a href="https://kairosoft.wiki.gg/wiki/Structures_(Dream_Town_Story)" target="_blank" rel="noopener">Structures (Dream Town Story)</a> 페이지(위키 기여자 작성)에서 가져왔으며 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 라이선스를 따릅니다. 변경 사항: 검색할 수 있는 도구로 재구성하고, 공간·배치 계산을 추가하고, 이름을 번역했습니다. 이 도구의 데이터도 같은 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> 라이선스로 공유합니다. 카이로소프트와 관련이 없고 승인을 받지 않은 비공식 팬 도구입니다.`,roadYes:"🚪 도로 필요",roadNo:"🌳 도로 불필요",legDoor:"입구 (짧은 변, 도로를 향함)",legDeco:"장식 (도로 불필요)"}
 };
 
+/* Controls that only work with scripts are created here, so viewers without scripts never show dead buttons. */
+document.getElementById("langsw").innerHTML='<button data-lang="en" lang="en">EN</button><button data-lang="ja" lang="ja">日本語</button><button data-lang="zh" lang="zh-Hant">繁中</button><button data-lang="zhs" lang="zh-Hans">简中</button><button data-lang="ko" lang="ko">한국어</button>';
+document.querySelector(".bar").innerHTML='<input id="q" type="search" autocomplete="off">';
+document.querySelector(".cartbar .in").insertAdjacentHTML("beforeend",'<button id="opencart">Plan space</button>');
 let selected=[]; let sortMode="lp"; let cart=[]; let share=true; let sheetOpen=false;
 let lang=(()=>{try{const s=localStorage.getItem("dts-lang");if(s&&UI[s])return s;}catch(e){}const n=(navigator.language||"en").toLowerCase();return n.startsWith("ja")?"ja":n.startsWith("ko")?"ko":n.startsWith("zh")?(/hant|tw|hk|mo/.test(n)?"zh":"zhs"):"en";})();
 const $=id=>document.getElementById(id);
@@ -3464,7 +3474,7 @@ function plan(combos){
   const maxSide=items.reduce((t,i)=>t+i.a,0);
   const boxes=[];
   for(let H=1;H<=maxSide;H++)for(let W=H;W<=maxSide;W++){
-    const A=W*H; if(A<tiles||A>=limitArea) continue;
+    const A=W*H; if(A<tiles||A>limitArea) continue;
     if(items.every(i=>i.b<=H&&i.a<=W)) boxes.push({W,H,A});
   }
   boxes.sort((p,q)=>p.A-q.A||(p.W-p.H)-(q.W-q.H));
@@ -3553,7 +3563,9 @@ function renderSheet(){
   const key=JSON.stringify([cart,share,MINE,ROAD_OVR]);
   if(!renderSheet.memo||renderSheet.memo.key!==key) renderSheet.memo={key,p:plan(combos)};
   const p=renderSheet.memo.p;
-  const best=p.block||p.row||p.stack;
+  const opts=[p.block,p.row,p.stack].filter(Boolean);
+  if(renderSheet.pickKey!==key){renderSheet.pickKey=key;renderSheet.pick=null;}
+  const best=opts.find(o=>o.kind===renderSheet.pick)||opts[0];
   const sharedNames=p.items.filter(i=>i.shared).map(i=>i.n);
   html+=`<div class="opts"><button class="btn" data-share="1" aria-pressed="${share}">${t.share}</button><button class="btn" data-share="0" aria-pressed="${!share}">${t.sep}</button></div>`;
   html+=`<div class="stats">
@@ -3562,16 +3574,275 @@ function renderSheet(){
     <div class="stat"><div class="v">${best?best.W+"×"+best.H:"—"}</div><div class="l">${best?t.smallest(best.W*best.H):t.noLayout}</div></div>
   </div>`;
   if(best){
+    if(opts.length>1) html+=`<div class="opts lay">${opts.map(o=>`<button class="btn" data-lay="${o.kind}" aria-pressed="${o===best}">${o.kind==="block"?t.optBlock:o.kind==="row"?t.optRow:t.optStack}${o.W}×${o.H}</button>`).join("")}</div>`;
     html+=`<div class="eyebrow">${best.kind==="block"?t.kBlock:best.kind==="row"?t.kRow:t.kStack}</div>
       <div class="plan">${drawPlan(p,best)}</div>
+      <div class="saverow"><button class="btn savebtn" id="saveimg">${t.saveImg}</button><span class="savemsg" id="savemsg" role="status"></span></div>
       <div class="legend"><span><i></i>${t.legBld}</span>${sharedNames.length?`<span><i class="sh"></i>${t.legShared}</span>`:""}<span><i class="dr"></i>${t.legDoor}</span><span><i class="deco"></i>${t.legDeco}</span><span>${t.legDash}</span></div>`;
     const alt=best.kind==="block"?p.row:null;
-    html+=`<p class="why">${best.kind==="block"?t.whyBlock+(alt?t.whyAlt(alt.W,alt.H):""):best.kind==="row"?t.whyRow:t.whyStack}${sharedNames.length?t.sharedNote(sharedNames.map(n=>esc(bn(n))).join(t.listSep),sharedNames.length>1):""}${p.timedOut?t.timedOut:""}</p>`;
-    if(alt){html+=`<details style="margin-top:8px"><summary class="eyebrow" style="cursor:pointer">${t.showRow}</summary><div class="plan" style="margin-top:6px">${drawPlan(p,alt)}</div></details>`;}
+    const same=p.block&&p.row&&p.block.W*p.block.H===p.row.W*p.row.H;
+    html+=`<p class="why">${best.kind==="block"?t.whyBlock+(alt&&!same?t.whyAlt(alt.W,alt.H):""):best.kind==="row"?(same?"":t.whyRow):t.whyStack}${same?t.sameArea:""}${sharedNames.length?t.sharedNote(sharedNames.map(n=>esc(bn(n))).join(t.listSep),sharedNames.length>1):""}${p.timedOut?t.timedOut:""}</p>`;
   }else{
     html+=`<div class="empty">${t.noLayoutMsg(p.tiles)}</div>`;
   }
   el.innerHTML=html;
+  renderSheet.current=best?{p,L:best,combos}:null;
+}
+
+/* ---- save the layout as a PNG ---- */
+function loadImg(src){return new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src;});}
+/* Share-card image (clean top-down map). drawCard(cur) -> Promise<dataURL>
+   cur = {p, L, combos} from the planner.
+   Drawn at 2x for a 1080 px wide portrait card. */
+const CARD_TXT = {
+  en: { eyebrow: "DREAM TOWN STORY · COMBO PLAN", fp: "Footprint", cmb: "Combos", bl: "Buildings" },
+  ja: { eyebrow: "箱庭タウンズ · 専門街プラン", fp: "広さ", cmb: "専門街", bl: "建物" },
+  zh: { eyebrow: "箱庭都市 · 專賣街規劃", fp: "佔地", cmb: "專賣街", bl: "建築" },
+  zhs: { eyebrow: "箱庭都市 · 专卖街规划", fp: "占地", cmb: "专卖街", bl: "建筑" },
+  ko: { eyebrow: "포켓 타운 스토리 · 조합 플랜", fp: "부지", cmb: "조합", bl: "건물" }
+};
+const CARD_OPEN = { "Ranch": "field", "Zoo": "field", "Safari Park": "field", "Park": "field", "Camp Site": "field", "Golf Course": "field",
+  "Golf Training Center": "field", "Farm": "crop", "Orchard": "crop", "Fishing Pond": "water", "Outdoor Pool": "water",
+  "Racecourse": "track", "Sports Grounds": "track", "Baseball Park": "track", "Beach House": "sand", "Fountain Plaza": "sand" };
+
+async function drawCard(cur) {
+  const t = L(), X = CARD_TXT[lang] || CARD_TXT.en, p = cur.p, Lay = cur.L, combos = cur.combos;
+  const FONTS = {
+    ja: '"Hiragino Sans","Noto Sans CJK JP","Yu Gothic","Meiryo"',
+    zh: '"PingFang TC","Noto Sans CJK TC","Noto Sans CJK HK","Microsoft JhengHei"',
+    zhs: '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei"',
+    ko: '"Apple SD Gothic Neo","Noto Sans CJK KR","Malgun Gothic"'
+  };
+  const FONT = (FONTS[lang] ? FONTS[lang] + "," : "") + '"Avenir Next","Segoe UI",Roboto,"Noto Sans","Noto Sans CJK SC",system-ui,sans-serif';
+  const C = {
+    ink: "#1f2a24", muted: "#6a776f", card: "#fffdf8", line: "#ece6d8",
+    teal: "#178a6e", coral: "#ff6f59", sun: "#ffc23d", sunDeep: "#b97a00",
+    landBg: "#e2f3dc", landFg: "#2c7a2a", priceBg: "#fff0c7", priceFg: "#94640a",
+    accents: ["#ff6f59", "#3f86e0", "#18a88a", "#f39a2b", "#8e63d6", "#e2609e"]
+  };
+  const DPR = 2, W = 540, M = 14, CW = W - 2 * M, PAD = 22, IW = CW - 2 * PAD;
+  // match the page: the same display (pixel) and body fonts as the current language uses on screen
+  const cssv = k => { try { return getComputedStyle(document.documentElement).getPropertyValue(k).trim(); } catch (e) { return ""; } };
+  const DISP = cssv("--display") || FONT, BODY = cssv("--body") || FONT, PIX = /DotGothic/i.test(DISP);
+  // the pixel font only looks crisp at multiples of 8 px (16 px on the 2x canvas): big text snaps to those sizes, small text uses the body font
+  const fnt = (w, s) => PIX ? (s >= 15 ? `400 ${Math.max(16, Math.round(s / 8) * 8)}px ${DISP}` : `${w} ${s}px ${BODY}`)
+    : (s <= 11 ? `${w} ${s}px ${BODY}` : `${w} ${s}px ${DISP}`);
+  if (document.fonts && document.fonts.load) {
+    const sample = combos.map(cb => cn(cb.n)).join("") + p.items.map(it => bn(it.n)).join("") + t.land + t.price + "0123456789+%×";
+    await Promise.race([Promise.all([document.fonts.load(fnt(800, 27), sample), document.fonts.load(fnt(600, 11), sample)]).catch(() => {}), new Promise(r => setTimeout(r, 2500))]);
+  }
+  const mctx = document.createElement("canvas").getContext("2d");
+  const tw = (s, w, sz) => { mctx.font = fnt(w, sz); return mctx.measureText(s).width; };
+  const fit = (s, w, sz, max) => { if (tw(s, w, sz) <= max) return s; while (s.length > 1 && tw(s + "…", w, sz) > max) s = s.slice(0, -1); return s + "…"; };
+  const icons = await Promise.all(p.items.map(it => loadImg(iconURL(it.n))));
+  const iconOf = n => icons[p.items.findIndex(it => it.n === n)];
+  const lots = p.items.map((it, i) => Object.assign({ it, i }, Lay.pos[i]));
+  const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+
+  // ---------- measure ----------
+  const names = combos.map(cb => cn(cb.n));
+  const titleLines = [];
+  { let line = "";
+    names.forEach((nm, k) => {
+      const cand = line ? line + " + " + nm : nm;
+      if (line && tw(cand, 800, 27) > IW) { titleLines.push(line); line = "+ " + nm; } else line = cand;
+    });
+    titleLines.push(line);
+    if (titleLines.length > 3) { titleLines.length = 3; titleLines[2] = fit(titleLines[2] + " …", 800, 27, IW); }
+    for (let k = 0; k < titleLines.length; k++) titleLines[k] = fit(titleLines[k], 800, 27, IW);
+  }
+  // map geometry
+  const ring = Lay.kind === "block";
+  let mapH, cell;
+  { const gw = Lay.W + 2, gh = Lay.H + 2 + (ring ? 0 : 1);
+    cell = Math.min(46, (IW - 24) / gw, 420 / gh);
+    mapH = Math.ceil((ring ? Lay.H + 2 : Lay.H + 1) * cell + 36); }
+
+  // chips (buildings)
+  const chipH = 30, chipGap = 8;
+  const chips = p.items.map((it, i) => { const label = fit(bn(it.n), 700, 13, IW - 90); const size = `${Lay.pos[i].w}×${Lay.pos[i].h}`; return { it, i, label, size, w: 12 + 20 + 7 + tw(label, 700, 13) + 7 + tw(size, 600, 11) + 12 }; });
+  let chipRows = 1; { let x = 0; chips.forEach(ch => { if (x && x + ch.w > IW) { chipRows++; x = 0; } ch.row = chipRows - 1; ch.x = x; x += ch.w + chipGap; }); }
+
+  const comboRowH = 46;
+  const yEyebrow = PAD + 6, yTitle = yEyebrow + 26;
+  const yStats = yTitle + titleLines.length * 34 + 6;
+  const yMap = yStats + 64 + 16;
+  const yCombos = yMap + mapH + 22;
+  const yShared = yCombos + 22 + combos.length * (comboRowH + 8);
+  const yChips = yShared + 8;
+  const cardH = yChips + 22 + chipRows * (chipH + chipGap) + PAD - 4;
+  const H = M + cardH + 44;
+
+  // ---------- canvas ----------
+  const F = document.createElement("canvas"); F.width = W * DPR; F.height = H * DPR;
+  const c = F.getContext("2d"); c.scale(DPR, DPR);
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+  const text = (s, x, y, w, sz, col, align = "left") => { c.font = fnt(w, sz); c.fillStyle = col; c.textAlign = align; c.textBaseline = "middle"; c.fillText(s, x, y); c.textAlign = "left"; };
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  // page background: sky to meadow, soft clouds
+  const bg = c.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, "#bfe4ff"); bg.addColorStop(0.45, "#e3f4ff"); bg.addColorStop(1, "#e8f6df");
+  c.fillStyle = bg; c.fillRect(0, 0, W, H);
+
+  // card
+  const cx0 = M, cy0 = M;
+  c.save(); c.shadowColor = "rgba(31,60,48,.18)"; c.shadowBlur = 24; c.shadowOffsetY = 8;
+  rr(cx0, cy0, CW, cardH, 26); c.fillStyle = C.card; c.fill(); c.restore();
+  const X0 = cx0 + PAD, Y = y => cy0 + y;
+
+  // header
+  c.fillStyle = C.coral; rr(X0, Y(yEyebrow) - 9, 18, 18, 6); c.fill();
+  text("★", X0 + 9, Y(yEyebrow) + 1, 800, 12, "#fff", "center");
+  text(X.eyebrow, X0 + 26, Y(yEyebrow), 800, 11, C.coral);
+  titleLines.forEach((ln, k) => text(ln, X0, Y(yTitle) + k * 34 + 8, 800, 27, C.ink));
+
+  // stats
+  const stats = [[p.items.length, t.bld], [p.tiles, t.covered], [`${Lay.W}×${Lay.H}`, X.fp]];
+  const sw = (IW - 16) / 3;
+  stats.forEach(([v, lab], k) => {
+    const sx = X0 + k * (sw + 8), sy = Y(yStats);
+    rr(sx, sy, sw, 60, 14); c.fillStyle = ["#fff1ec", "#eaf4ff", "#e8f7f1"][k]; c.fill();
+    text(String(v), sx + 14, sy + 23, 800, 23, [C.coral, "#2f6fc4", C.teal][k]);
+    text(fit(lab, 600, 11, sw - 24), sx + 14, sy + 45, 600, 11, C.muted);
+  });
+
+  // ---------- map panel ----------
+  const mx = X0, my = Y(yMap), mw = IW;
+  c.save(); rr(mx, my, mw, mapH, 20); c.clip();
+  const sky = c.createLinearGradient(0, my, 0, my + mapH);
+  sky.addColorStop(0, "#e4f5da"); sky.addColorStop(1, "#d6efc9");
+  c.fillStyle = sky; c.fillRect(mx, my, mw, mapH);
+  drawMap();
+  c.restore();
+
+  function drawMap() {
+    const gw = Lay.W + 2, gh = ring ? Lay.H + 2 : Lay.H + 1;
+    const ox = mx + (mw - gw * cell) / 2 + cell, oy = my + 18 + (ring ? cell : 0);
+    for (let k = 0; k < 120; k++) { c.fillStyle = k % 3 ? "rgba(255,255,255,.5)" : "rgba(80,150,60,.25)"; c.fillRect(mx + rnd() * mw, my + rnd() * mapH, 2, 2); }
+    const G = (gx, gy) => [ox + gx * cell, oy + gy * cell];
+    // roads
+    c.fillStyle = "#5d6573";
+    const roadRect = (x, y, w, h) => { rr(x, y, w, h, cell * 0.3); c.fill(); };
+    if (ring) { const [x, y] = G(-1, -1); roadRect(x, y, (Lay.W + 2) * cell, (Lay.H + 2) * cell); }
+    else [Lay.H, ...(Lay.roadRows || [])].forEach(r => { const [x, y] = G(-1, r); roadRect(x, y, (Lay.W + 2) * cell, cell); });
+    c.save(); c.setLineDash([cell * .25, cell * .25]); c.strokeStyle = "rgba(255,255,255,.8)"; c.lineWidth = 2; c.beginPath();
+    if (ring) { const [x, y] = G(-0.5, -0.5); rr(x, y, (Lay.W + 1) * cell, (Lay.H + 1) * cell, cell * 0.15); }
+    else [Lay.H, ...(Lay.roadRows || [])].forEach(r => { const [x, y] = G(-1, r + 0.5); c.moveTo(x + 6, y); c.lineTo(x + (Lay.W + 2) * cell - 6, y); });
+    c.stroke(); c.restore();
+    // plaza
+    { const [x, y] = G(0, 0); c.fillStyle = "#f3ead3"; rr(x - 2, y - 2, Lay.W * cell + 4, Lay.H * cell + 4, 6); c.fill(); }
+    const PAST = ["#ffe0da", "#dbe9ff", "#d5f3ea", "#ffe6c9", "#e9e0ff", "#ffdcee"];
+    lots.forEach(l => {
+      const it = l.it, [x0, y0] = G(l.x, l.y), w = l.w * cell, h = l.h * cell, g = 2.5;
+      const x = x0 + g, y = y0 + g, ww = w - 2 * g, hh = h - 2 * g, kind = CARD_OPEN[it.n];
+      let fill, edge;
+      if (!it.road) { fill = "#bfe8a8"; edge = "#5aa842"; }
+      else if (kind) { fill = { field: "#bfe8a0", water: "#b5e5f7", crop: "#ecd3a8", track: "#f6c3a6", sand: "#f7e6b8" }[kind]; edge = "#a9845a"; }
+      else if (it.shared) { fill = "#ffe7a6"; edge = C.sunDeep; }
+      else { const k = hash(it.n) % PAST.length; fill = PAST[k]; edge = C.accents[k]; }
+      c.save(); c.shadowColor = "rgba(30,60,40,.22)"; c.shadowBlur = 8; c.shadowOffsetY = 3;
+      rr(x, y, ww, hh, 9); c.fillStyle = fill; c.fill(); c.restore();
+      rr(x, y, ww, hh, 9); c.strokeStyle = edge; c.lineWidth = 2; if (kind) c.setLineDash([4, 3]); c.stroke(); c.setLineDash([]);
+      // door marker
+      if (it.road) {
+        c.fillStyle = edge; const d = l.door || "b", s = Math.min(ww, hh) * 0.36;
+        if (d === "b") rr(x + ww / 2 - s / 2, y + hh - 4, s, 6, 3); else if (d === "t") rr(x + ww / 2 - s / 2, y - 2, s, 6, 3);
+        else if (d === "l") rr(x - 2, y + hh / 2 - s / 2, 6, s, 3); else rr(x + ww - 4, y + hh / 2 - s / 2, 6, s, 3);
+        c.fill();
+      }
+      const showName = ww >= 70 && hh >= 64;
+      const r = Math.max(10, Math.min(20, Math.min(ww, hh) * 0.28));
+      const icx = x + ww / 2, icy = y + hh / 2 - (showName ? 9 : 0);
+      c.fillStyle = "#fff"; c.beginPath(); c.arc(icx, icy, r, 0, 7); c.fill();
+      const im = icons[l.i]; if (im) { c.imageSmoothingEnabled = false; c.drawImage(im, icx - r * .72, icy - r * .72, r * 1.44, r * 1.44); c.imageSmoothingEnabled = true; }
+      if (showName) text(fit(bn(it.n), 700, 11, ww - 10), icx, icy + r + 11, 700, 11, C.ink, "center");
+      if (it.shared) { c.fillStyle = C.sun; c.beginPath(); c.arc(x + ww - 8, y + 8, 8, 0, 7); c.fill(); text("★", x + ww - 8, y + 8.5, 800, 10, "#fff", "center"); }
+    });
+  }
+
+  // ---------- combos ----------
+  const section = (label, y) => { text(label.toUpperCase(), X0, Y(y), 800, 11, C.muted); };
+  section(X.cmb, yCombos);
+  combos.forEach((cb, k) => {
+    const y = Y(yCombos) + 14 + k * (comboRowH + 8);
+    rr(X0, y, IW, comboRowH, 14); c.fillStyle = "#f7f3e9"; c.fill();
+    c.fillStyle = C.accents[k % C.accents.length]; rr(X0, y, 6, comboRowH, 3); c.fill();
+    let x = X0 + 16;
+    cb.parts.forEach(pt => { const im = iconOf(pt); c.fillStyle = "#fff"; c.beginPath(); c.arc(x + 12, y + comboRowH / 2, 13, 0, 7); c.fill(); if (im) { c.imageSmoothingEnabled = false; c.drawImage(im, x + 3, y + comboRowH / 2 - 9, 18, 18); c.imageSmoothingEnabled = true; } x += 22; });
+    x += 14;
+    const pl = `${t.land} +${cb.lp}%`, pp = `${t.price} +${cb.pr}%`;
+    const plw = tw(pl, 800, 12) + 18, ppw = tw(pp, 800, 12) + 18;
+    const nameMax = X0 + IW - 12 - plw - ppw - 8 - x - 8;
+    text(fit(cn(cb.n), 800, 15, nameMax), x, y + comboRowH / 2, 800, 15, C.ink);
+    let px = X0 + IW - 12 - ppw;
+    rr(px, y + comboRowH / 2 - 12, ppw, 24, 12); c.fillStyle = C.priceBg; c.fill(); text(pp, px + 9, y + comboRowH / 2 + .5, 800, 12, C.priceFg);
+    px -= plw + 8;
+    rr(px, y + comboRowH / 2 - 12, plw, 24, 12); c.fillStyle = C.landBg; c.fill(); text(pl, px + 9, y + comboRowH / 2 + .5, 800, 12, C.landFg);
+  });
+
+  // ---------- building chips ----------
+  section(X.bl, yChips);
+  chips.forEach(ch => {
+    const x = X0 + ch.x, y = Y(yChips) + 14 + ch.row * (chipH + chipGap);
+    rr(x, y, ch.w, chipH, chipH / 2); c.fillStyle = ch.it.shared ? "#fff2c9" : "#f1f4ef"; c.fill();
+    if (ch.it.shared) { c.strokeStyle = C.sun; c.lineWidth = 1.5; c.stroke(); }
+    const im = icons[ch.i]; if (im) { c.imageSmoothingEnabled = false; c.drawImage(im, x + 10, y + 5, 20, 20); c.imageSmoothingEnabled = true; }
+    text(ch.label, x + 37, y + chipH / 2 + .5, 700, 13, C.ink);
+    text(ch.size, x + ch.w - 12, y + chipH / 2 + .5, 600, 11, C.muted, "right");
+  });
+
+  // footer
+  text("專賣街 Combo Finder · " + t.imgFoot, W / 2, H - 22, 600, 11, "#4f6a5c", "center");
+  return F.toDataURL("image/png");
+}
+function showImageBox(url,name){
+  const t=L(); let box=$("imgbox");
+  if(!box){box=document.createElement("div");box.id="imgbox";box.className="imgbox";document.body.appendChild(box);}
+  box.innerHTML=`<div class="in"><div class="shead"><h3>${t.imgTitle}</h3><button class="btn" id="closeimg">${t.close}</button></div>
+    <img class="layimg" id="layimg" alt="${esc(t.imgTitle)}"><div class="imgact" id="imgact"></div><p class="why">${t.saveHint}</p></div>`;
+  $("layimg").src=url;
+  /*DL-START*/
+  // a real file (blob) works on more phones than a data: link
+  const bin=atob(url.split(",")[1]), bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  const blob=new Blob([bytes],{type:"image/png"});
+  if(showImageBox.blobUrl){ try{URL.revokeObjectURL(showImageBox.blobUrl);}catch(e){} }
+  showImageBox.blobUrl=URL.createObjectURL(blob);
+  // phone share sheet (has "Save image" on iPhone and Android)
+  let file=null; try{ file=new File([blob],name,{type:"image/png"}); }catch(e){}
+  if(file&&navigator.canShare&&navigator.share){
+    let ok=false; try{ ok=navigator.canShare({files:[file]}); }catch(e){}
+    if(ok){
+      const sb=document.createElement("button"); sb.className="btn savebtn"; sb.type="button"; sb.textContent=t.shareImg;
+      sb.addEventListener("click",()=>{ navigator.share({files:[file],title:t.imgTitle}).catch(()=>{}); });
+      $("imgact").appendChild(sb);
+    }
+  }
+  const a=document.createElement("a"); a.className="btn savebtn"; a.href=showImageBox.blobUrl; a.download=name; a.textContent=t.download; $("imgact").appendChild(a);
+  /*DL-END*/
+  box.hidden=false;
+}
+async function saveLayoutImage(){
+  const cur=renderSheet.current; if(!cur) return;
+  const t=L(), msg=$("savemsg"), btn=$("saveimg");
+  btn.disabled=true; msg.textContent=t.saving;
+  let url;
+  try{ url=await drawCard(cur); }catch(err){ msg.textContent=t.saveFail; btn.disabled=false; return; }
+  const name="dream-town-layout-"+cur.combos.map(c=>c.n.replace(/[^A-Za-z0-9]+/g,"-")).join("_").toLowerCase()+".png";
+  const mt=window.xhs&&window.xhs.miniTool;
+  if(mt&&typeof mt.saveImageToPhotosAlbum==="function"){
+    try{
+      let filePath=url;
+      if(typeof mt.writeTempFile==="function"){ const r=await mt.writeTempFile({data:url}); if(r&&r.filePath) filePath=r.filePath; }
+      await mt.saveImageToPhotosAlbum({filePath});
+      msg.textContent=t.savedAlbum;
+    }catch(err){ msg.textContent=t.saveFail; }
+  }else{
+    msg.textContent="";
+    showImageBox(url,name);
+  }
+  btn.disabled=false;
 }
 function setSheet(open){
   sheetOpen=open; $("sheet").hidden=!open; $("scrim").hidden=!open;
@@ -3661,6 +3932,9 @@ document.addEventListener("click",e=>{
   const lb=e.target.closest("[data-lang]"); if(lb){setLang(lb.dataset.lang);return;}
   if(e.target.closest("#opencart")){setSheet(true);return;}
   if(e.target.closest("#closecart")||e.target.id==="scrim"){setSheet(false);return;}
+  const ly=e.target.closest("[data-lay]"); if(ly){renderSheet.pick=ly.dataset.lay;renderSheet();return;}
+  if(e.target.closest("#saveimg")){saveLayoutImage();return;}
+  if(e.target.closest("#closeimg")){$("imgbox").hidden=true;if(showImageBox.blobUrl){try{URL.revokeObjectURL(showImageBox.blobUrl);}catch(err){}showImageBox.blobUrl=null;}return;}
   const sh=e.target.closest("[data-share]"); if(sh){share=sh.dataset.share==="1";save();renderSheet();return;}
   const cb=e.target.closest("[data-cart]"); if(cb){toggleCart(cb.dataset.cart);return;}
   const so=e.target.closest("[data-sort]"); if(so){sortMode=so.dataset.sort;render();return;}
@@ -3692,6 +3966,7 @@ if(!cart.length) cart=["Sweets","Fresh-Made"];
 applyStatic();
 render();
 document.documentElement.classList.add("js");
+{const nj=document.getElementById("nojs");if(nj)nj.remove();}
 
 </script>
 
